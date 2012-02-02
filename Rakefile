@@ -25,8 +25,8 @@ end
 def cmake_cmd(arch)
   marvell_cc = "/usr/local/arm/arm-marvell-linux-gnueabi/bin/arm-linux-gcc"
   marvell_cxx = "/usr/local/arm/arm-marvell-linux-gnueabi/bin/arm-linux-g++"
-  arm_cc = "/opt/freescale/usr/local/gcc-4.1.2-glibc-2.5-nptl-3/arm-none-linux-gnueabi/bin/arm-linux-gcc"
-  arm_cxx = "/opt/freescale/usr/local/gcc-4.1.2-glibc-2.5-nptl-3/arm-none-linux-gnueabi/bin/arm-linux-g++"
+  arm_cc = "/opt/freescale/usr/local/gcc-4.4.4-glibc-2.11.1-multilib-1.0/arm-fsl-linux-gnueabi/bin/arm-linux-gcc"
+  arm_cxx = "/opt/freescale/usr/local/gcc-4.4.4-glibc-2.11.1-multilib-1.0/arm-fsl-linux-gnueabi/bin/arm-linux-g++"
   if arch == :arm
     "CC='#{compiler_prefix}#{arm_cc}' CXX='#{compiler_prefix}#{arm_cxx}' cmake "
   elsif arch == :marvell
@@ -67,7 +67,7 @@ directory "build/x86"
 
 task :arm_env do
   path = ENV['PATH']
-  ENV['PATH'] = "/opt/onyx/arm/bin:/opt/freescale/usr/local/gcc-4.1.2-glibc-2.5-nptl-3/arm-none-linux-gnueabi/bin/:#{path}"
+  ENV['PATH'] = "/opt/onyx/arm/bin:/opt/freescale/usr/local/gcc-4.4.4-glibc-2.11.1-multilib-1.0/arm-fsl-linux-gnueabi/bin/:#{path}"
   ENV['ONYX_SDK_ROOT'] = '/opt/onyx/arm'
   ENV['PKG_CONFIG_PATH'] = '/opt/onyx/arm/lib/pkgconfig/'
   ENV['QMAKESPEC'] = '/opt/onyx/arm/mkspecs/qws/linux-arm-g++/'

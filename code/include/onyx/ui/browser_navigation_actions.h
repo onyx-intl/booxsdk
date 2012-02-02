@@ -1,7 +1,7 @@
 #ifndef BROWSER_NAVIGATION_ACTIONS_H_
 #define BROWSER_NAVIGATION_ACTIONS_H_
 
-#include <QWebHistory>
+#include <QtWebKit/QWebHistory>
 
 #include "onyx/base/base.h"
 #include "onyx/ui/context_dialog_base.h"
