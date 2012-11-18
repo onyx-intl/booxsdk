@@ -16,7 +16,7 @@
 #include <vector>
 
 #ifdef _WINDOWS
-#include <unordered_map>
+#include <hash_map>
 #else
 #include <tr1/unordered_map>
 #endif
@@ -35,7 +35,11 @@ using std::pair;
 using std::set;
 using std::stack;
 using std::vector;
+#ifdef _WINDOWS
+//using std::tr1::unordered_map;
+#else
 using std::tr1::unordered_map;
+#endif
 
 namespace base{
 

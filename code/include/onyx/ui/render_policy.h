@@ -9,7 +9,12 @@ namespace vbf
 
 // Render requests
 // First parameter is the page number and the second is the priority
+#ifdef _WINDOWS
+typedef stdext::hash_map<int, int>  RenderRequests;
+#else
 typedef unordered_map<int, int>  RenderRequests;
+#endif
+
 typedef RenderRequests::iterator RenderRequestsIter;
 
 class RenderPolicy
