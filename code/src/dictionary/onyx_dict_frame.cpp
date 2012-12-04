@@ -30,7 +30,7 @@ OnyxDictFrame::OnyxDictFrame(QWidget *parent,
     , line_edit_(0, this)
     , explanation_(0)
     , list_widget_(0, 0)
-    , help_widget_(tr("No dictionary found. Please put dictionaries in SD Card \"dicts\" folder."), this)
+    , help_widget_(tr("No dictionary found. Please put dictionaries in SD Card or internal flash's \"dicts\" folder."), this)
     , dictionary_menu_(0, this)
     , tts_button_view_(0, this)
     , keyboard_(this)
