@@ -757,7 +757,7 @@ void DictWidget::adjustPosition(int position)
     }
 
     move(new_pos);
-    emit positionAdjusted();
+    onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GC, true);
 }
 
 void DictWidget::moreSimilarWords(bool begin)
