@@ -126,6 +126,7 @@ class SysStatus : public QObject
     bool stopDRMService();
     static void addDRMEnvironment();
 
+    void initDRMService();
     bool startMessenger();
     bool stopMessenger();
 
@@ -196,10 +197,12 @@ class SysStatus : public QObject
     void musicPlayerStateChanged(int state);
     void downloadStateChanged(const QString &path, const int percentage, bool open);
 
-    void requestDRMUserInfo(const QString & string, const QString & param);
-    void fulfillmentFinished(const QString & string);
+    void requestDRMUserInfo(const QString & string, const QStringList & param);
+    void fulfillmentStart(const QString & url);
+    void fulfillmentFinished(const QString & url, const QString & string, int current, int total);
     void loanReturnFinished(const QString & string);
     void reportWorkflowError(const QString & workflow, const QString & error_code);
+    void activationFinished(bool succeed);
 
     void report3GNetwork(const int signal, const int total, const int network);
 
@@ -244,10 +247,13 @@ class SysStatus : public QObject
     void onMusicPlayerStateChanged(int);
     void onDownloadStateChanged(const QString &path, int percentage, bool);
 
-    void onRequestDRMUserInfo(const QString &string, const QString & param);
-    void onFulfillmentFinished(const QString & string);
+    void onRequestDRMUserInfo(const QString &string, const QStringList & param);
+    void onFulfillmentStart(const QString & url);
+    void onFulfillmentFinished(const QString & url, const QString & string, int current, int total);
     void onLoanReturnFinished(const QString & string);
     void onReportWorkflowError(const QString & workflow, const QString & error_code);
+    void onActivationFinished(bool succeeded);
+
     void onReport3GNetwork(const int signal, const int total, const int network);
 
     void onHardwareTimerTimeout();
