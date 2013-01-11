@@ -10,12 +10,22 @@ static const QString TAG_PATH = "path";
 static const QString TAG_SIZE = "size";
 static const QString TAG_STATE = "state";
 static const QString TAG_TIMESTAMP = "timestamp";
-static const QString TAG_SPEED= "speed";
-static const QString TAG_RECEIVED= "received";
+static const QString TAG_SPEED = "speed";
+static const QString TAG_RECEIVED = "received";
+static const QString TAG_INTERNAL_ID = "internalid";
 
 DownloadItemInfo::DownloadItemInfo(const QVariantMap & vm)
     : OData(vm)
 {
+    setTimeStamp(QDateTime::currentDateTime().toString(dateFormat()));
+}
+
+DownloadItemInfo::DownloadItemInfo(const QString &u)
+{
+    setUrl(u);
+    setPath("");
+    setInternalId(-1);
+    setState(STATE_INVALID);
     setTimeStamp(QDateTime::currentDateTime().toString(dateFormat()));
 }
 
@@ -75,6 +85,16 @@ QString DownloadItemInfo::timeStamp() const
 void DownloadItemInfo::setTimeStamp(const QString & timeStamp)
 {
     insert(TAG_TIMESTAMP, timeStamp);
+}
+
+int DownloadItemInfo::internalId() const
+{
+    return value(TAG_INTERNAL_ID).toInt();
+}
+
+void DownloadItemInfo::setInternalId(int id)
+{
+    insert(TAG_INTERNAL_ID, id);
 }
 
 QString DownloadItemInfo::speed() const
@@ -188,17 +208,80 @@ DownloadInfoList DownloadDB::all(DownloadState state)
     return list;
 }
 
-DownloadInfoList DownloadDB::pendingList(const DownloadInfoList & input,
-                                     bool force_all,
-                                     bool sort)
+bool DownloadDB::infoListContains(const DownloadInfoList & info_list, const DownloadItemInfo &item)
 {
-    DownloadInfoList list = force_all ? all(STATE_INVALID) : all(FINISHED);
-    // check input now.
-    foreach(DownloadItemInfo i, input)
+    bool contains = false;
+    foreach (DownloadItemInfo i, info_list)
     {
-        if (!list.contains(i))
+        if (i.url() == item.url())
         {
-            list.push_back(i);
+            contains = true;
+            break;
+        }
+    }
+    return contains;
+}
+
+void DownloadDB::infoListRemove(DownloadInfoList & info_list, const DownloadItemInfo &item)
+{
+    foreach (DownloadItemInfo i, info_list)
+    {
+        if (i.url() == item.url())
+        {
+            info_list.remove(info_list.indexOf(i));
+        }
+    }
+}
+
+DownloadInfoList DownloadDB::pendingList(QStringList input,
+                                         bool force_all,
+                                         bool sort)
+{
+    DownloadInfoList list;
+
+    // Fetch all download items.
+    QSqlQuery query(db());
+    query.prepare( "select url, value from download ");
+    if (!query.exec())
+    {
+        return list;
+    }
+
+    while (query.next())
+    {
+        QVariantMap m;
+        QByteArray ba = query.value(1).toByteArray();
+        QDataStream stream(&ba, QIODevice::ReadOnly);
+        stream >> m;
+
+        DownloadItemInfo item(m);
+
+        // Remove the items failed from input too.
+        if (item.state() == FAILED)
+        {
+            // remove the items if exist in input
+            input.removeAll(item.url());
+        }
+
+        DownloadState state = item.state();
+        // Ignore items finished or failed.
+        if ((state != FINISHED && state != FINISHED_READ && state != FAILED) || force_all)
+        {
+            if (!list.contains(item))
+            {
+                list.push_back(item);
+            }
+        }
+    }
+
+    // check input now.
+    foreach(QString i, input)
+    {
+        DownloadItemInfo item_info;
+        item_info.setUrl(i);
+        if (!infoListContains(list, item_info))
+        {
+            list.push_back(item_info);
         }
     }
 
@@ -223,34 +306,28 @@ bool DownloadDB::update(const DownloadItemInfo & item)
     return query.exec();
 }
 
-bool DownloadDB::updateState(const QString & myUrl, DownloadState state)
+bool DownloadDB::updateState(const QString & url, DownloadState state)
 {
     // find the download item info first.
-
     QSqlQuery query(db());
-    query.prepare( "select url, value from download ");
+    query.prepare( "select url, value from download where url = ?");
+    query.addBindValue(url);
     if (!query.exec())
     {
         return false;
     }
 
-    while (query.next())
+    QVariantMap m;
+    if (query.next())
     {
-        if (query.value(0).toString() == myUrl)
-        {
-            QVariantMap m;
-            QByteArray ba = query.value(1).toByteArray();
-            QDataStream stream(&ba, QIODevice::ReadOnly);
-            stream >> m;
-
-            DownloadItemInfo item(m);
-            item.setUrl(myUrl);
-            item.setState(state);
-            return update(item);
-        }
+        QByteArray ba = query.value(1).toByteArray();
+        QDataStream stream(&ba, QIODevice::ReadOnly);
+        stream >> m;
     }
-
-    return false;
+    DownloadItemInfo item(m);
+    item.setUrl(url);
+    item.setState(state);
+    return update(item);
 }
 
 int  DownloadDB::itemCount(DownloadState state)
@@ -291,6 +368,65 @@ bool DownloadDB::remove(const QString & url)
     query.prepare( "delete from download where url = ?");
     query.addBindValue(url);
     return query.exec();
+}
+
+QString DownloadDB::getPathByUrl(const QString &url)
+{
+    QString path;
+
+    // Fetch all download items.
+    QSqlQuery query(db());
+    query.prepare( "select url, value from download where url = ?");
+    query.addBindValue(url);
+    if (!query.exec())
+    {
+        return path;
+    }
+
+    if (query.next())
+    {
+        QVariantMap m;
+        QByteArray ba = query.value(1).toByteArray();
+        QDataStream stream(&ba, QIODevice::ReadOnly);
+        stream >> m;
+
+        DownloadItemInfo item(m);
+        path = item.path();
+    }
+    return path;
+}
+
+QString DownloadDB::getPathById(int id)
+{
+    QString path;
+
+    // Fetch all download items.
+    QSqlQuery query(db());
+    query.prepare( "select url, value from download ");
+    if (!query.exec())
+    {
+        return path;
+    }
+
+    while (query.next())
+    {
+        if (!query.value(0).toString().isEmpty())
+        {
+            QVariantMap m;
+            QByteArray ba = query.value(1).toByteArray();
+            QDataStream stream(&ba, QIODevice::ReadOnly);
+            stream >> m;
+
+            DownloadItemInfo item(m);
+            if (item.internalId() == id)
+            {
+                path = item.path();
+                break;
+            }
+        }
+    }
+
+    return path;
 }
 
 bool DownloadDB::makeSureTableExist(QSqlDatabase &db)

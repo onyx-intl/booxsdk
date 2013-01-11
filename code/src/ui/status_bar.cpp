@@ -859,7 +859,7 @@ LegacyPowerManagementDialog *StatusBar::legacyPMDialog(bool create)
 
 PowerManagementDialog *StatusBar::pmDialog(bool create)
 {
-    if (!pm_dialog_ && create)
+//    if (!pm_dialog_ && create)
     {
         pm_dialog_.reset(new PowerManagementDialog(0, sys::SysStatus::instance()));
     }

@@ -51,7 +51,7 @@ void FontConfig::setDefaultFontFamily(QSqlDatabase & database,
 {
     QSqlQuery query(database);
     query.prepare( "INSERT OR REPLACE into fonts values "
-		   "(:key, :value)");
+                  "(:key, :value)");
     query.addBindValue("default");
     query.addBindValue(value);
     query.exec();
@@ -62,15 +62,27 @@ QString FontConfig::defaultFontFamily(QSqlDatabase &database)
     QString family;
     QSqlQuery query(database);
     query.prepare( "SELECT * from fonts where "
-		   "key = :key");
+                  "key = :key");
     query.addBindValue("default");
     query.exec();
     while (query.next())
     {
-	family = query.value(1).toString();
-	return family;
-    }       
-    return QString();
+        family = query.value(1).toString();
+        return family;
+    }
+    QString family_defined = qgetenv("DEFAULT_FONT_FAMILY");
+    qDebug() << "family_defined default font is " << family_defined;
+    QString default_family;
+    if (!family_defined.isEmpty())
+    {
+        default_family = family_defined;
+    }
+    else
+    {
+        default_family = "DejaVu Sans";
+    }
+    setDefaultFontFamily(database, default_family);
+    return default_family;
 }
 
 // The follow not be used
@@ -78,7 +90,7 @@ QString FontConfig::defaultFontFamily(QSqlDatabase &database)
 QString FontConfig::getFontFamily(QSqlDatabase &database,
                                   QFontDatabase::WritingSystem system)
 {
-    
+
     QString ret;
     QString family;
     statement st(database);
@@ -88,8 +100,8 @@ QString FontConfig::getFontFamily(QSqlDatabase &database,
     if (st.exec())
     {
         ret.fromUtf8(family.c_str());
-	return ret;
-    }       
+    return ret;
+    }
     return QString();
 }
 
