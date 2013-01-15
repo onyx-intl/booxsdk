@@ -61,9 +61,11 @@ void MoonLightProgressBar::changePoint(QPoint &pos)
     if (rect().contains(pos))
     {
         double x = (double)pos.x();
-        if(pos.x()%step_value_ == 0)
+        if(pos.x()%step_value_==0 || pos.x()<=30 || pos.x()>=width()-80)
         {
             double percentage = x / width();
+            percentage = percentage+0.005;
+            if(percentage >= 1.0)percentage=1.0;
             setValue(percentage*maximum());
         }
     }
@@ -82,6 +84,8 @@ void MoonLightProgressBar::mouseReleaseEvent(QMouseEvent *me)
     {
         double x = (double)pt.x();
         double percentage = x / width();
+        percentage = percentage+0.005;
+        if(percentage >= 1.0)percentage=1.0;
         setValue(percentage*maximum());
     }
 }
