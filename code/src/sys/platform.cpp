@@ -126,7 +126,7 @@ bool hasGlowLight()
     return qgetenv("GLOW_LIGHT").toInt() > 0;
 }
 
-bool isNoTouchByWithWifi()
+bool isNoTouchButWithWifi()
 {
     return qgetenv("NO_TOUCH_BUT_WITH_WIFI").toInt() > 0;
 }

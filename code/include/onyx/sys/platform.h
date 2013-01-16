@@ -34,7 +34,7 @@ bool isNoTouch();
 
 bool hasGlowLight();
 
-bool isNoTouchByWithWifi();
+bool isNoTouchButWithWifi();
 
 }
 
