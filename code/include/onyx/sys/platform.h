@@ -34,6 +34,8 @@ bool isNoTouch();
 
 bool hasGlowLight();
 
+bool isNoTouchByWithWifi();
+
 }
 
 #endif  // ONYX_SYSTEM_PLATFORM_H__
