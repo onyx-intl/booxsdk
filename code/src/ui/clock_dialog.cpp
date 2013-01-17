@@ -136,6 +136,8 @@ FullScreenClock::FullScreenClock(QWidget *parent)
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(updateFSClock()));
     timer->start(60000);
+
+    sys::SysStatus::instance().enableIdle(false);
 }
 
 FullScreenClock::~FullScreenClock(void)
@@ -260,11 +262,13 @@ void FullScreenClock::onReturn()
 
 void FullScreenClock::onOkClicked(bool)
 {
+    sys::SysStatus::instance().enableIdle(true);
     accept();
 }
 
 void FullScreenClock::onCloseClicked()
 {
+    sys::SysStatus::instance().enableIdle(true);
     reject();
 }
 

@@ -171,7 +171,7 @@ void RussianKeyboardData::initLeftKeySymbolCode()
 {
     const QChar chs[] = {'[', ']', '{',
                          '}', '\\', QChar(0x00B5),
-                         '/', '`', QChar(0x00AD), };
+                         '/', '`', QChar(0x002D), };
     for (int i = 0; i < 9; i++)
     {
         ODataPtr dd(createData(QString(chs[i])));
