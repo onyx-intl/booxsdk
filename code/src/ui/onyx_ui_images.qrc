@@ -269,6 +269,8 @@
     <file>images/font_settings_small.png</file>
     <file>images/legal_text.png</file>
     <file>images/glow_light_switch.png</file>
+    <file>images/sys_input_text.png</file>
+    <file>images/sys_input_url.png</file>
 
   </qresource>
 </RCC>
