@@ -44,6 +44,28 @@ void SystemActions::generateActions(const std::vector<int> & actions)
     {
         switch (all[i])
         {
+        case SYS_INPUT_TEXT:
+            {
+                shared_ptr<QAction> sys_input_text(new QAction(exclusiveGroup()));
+                sys_input_text->setCheckable(true);
+                sys_input_text->setFont(actionFont());
+                sys_input_text->setText(QCoreApplication::tr("Input Text"));
+                sys_input_text->setIcon(QIcon(QPixmap(":/images/sys_input_text.png")));
+                sys_input_text->setData(SYS_INPUT_TEXT);
+                actions_.push_back(sys_input_text);
+                break;
+            }
+        case SYS_INPUT_URL:
+            {
+                shared_ptr<QAction> sys_input_url(new QAction(exclusiveGroup()));
+                sys_input_url->setCheckable(true);
+                sys_input_url->setFont(actionFont());
+                sys_input_url->setText(QCoreApplication::tr("Input URL"));
+                sys_input_url->setIcon(QIcon(QPixmap(":/images/sys_input_url.png")));
+                sys_input_url->setData(SYS_INPUT_URL);
+                actions_.push_back(sys_input_url);
+                break;
+            }
         case ROTATE_SCREEN:
             {
                 shared_ptr<QAction> rotate(new QAction(exclusiveGroup()));
