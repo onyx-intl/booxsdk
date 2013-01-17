@@ -20,6 +20,10 @@ public:
     int  maximum(){return max_value_;}
     int  minimum(){return min_value_;}
 
+public Q_SLOTS:
+    void addValue();
+    void subValue();
+
 Q_SIGNALS:
     void valueChanged(int value);
 
@@ -64,6 +68,8 @@ private:
     void updateText();
     void createSwitchView();
     void createOKView();
+    void createSubLightView();
+    void createAddLightView();
 
 private:
     QVBoxLayout layout_;
@@ -75,7 +81,8 @@ private:
 
     CatalogView switch_view_;
     CatalogView ok_view_;
-
+    CatalogView add_light_view_;
+    CatalogView sub_light_view_;
 };
 
 
