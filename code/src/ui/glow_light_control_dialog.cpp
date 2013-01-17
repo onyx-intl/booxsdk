@@ -280,7 +280,7 @@ void GlowLightControlDialog::createOKView()
 void GlowLightControlDialog::createAddLightView()
 {
     add_light_view_.setSubItemType(ui::CoverView::type());
-    add_light_view_.setPreferItemSize(QSize(-1, 40));
+    add_light_view_.setPreferItemSize(QSize(60, -1));
 
     ODatas d;
     OData * item = new OData;
@@ -288,7 +288,6 @@ void GlowLightControlDialog::createAddLightView()
     item->insert(TAG_COVER,  pixmap);
     d.push_back(item);
 
-    add_light_view_.setMinimumHeight( 42 );
     add_light_view_.setFixedGrid(1, 1);
     add_light_view_.setFixedWidth(60);
     add_light_view_.setData(d, true);
@@ -300,7 +299,7 @@ void GlowLightControlDialog::createAddLightView()
 void GlowLightControlDialog::createSubLightView()
 {
     sub_light_view_.setSubItemType(ui::CoverView::type());
-    sub_light_view_.setPreferItemSize(QSize(-1, 40));
+    sub_light_view_.setPreferItemSize(QSize(60, -1));
 
     ODatas d;
     OData * item = new OData;
@@ -308,7 +307,6 @@ void GlowLightControlDialog::createSubLightView()
     item->insert(TAG_COVER,  pixmap);
     d.push_back(item);
 
-    sub_light_view_.setMinimumHeight( 42 );
     sub_light_view_.setFixedGrid(1, 1);
     sub_light_view_.setFixedWidth(60);
     sub_light_view_.setData(d, true);
