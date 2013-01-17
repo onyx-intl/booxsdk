@@ -194,7 +194,7 @@ void HebrewKeyboardData::initMiddleKeySymbolCode()
 void HebrewKeyboardData::initRightKeySymbolCode()
 {
     const QChar chs[] = {QChar(0x00B1), QChar(0x00B5), QChar(0x00AC),
-                         QChar(0x00AD), QChar(0x00AF), QChar(0x00B7),
+                         QChar(0x002D), QChar(0x00AF), QChar(0x00B7),
                          QChar(0x00AB), QChar(0x00BB), QChar(0x00AE), };
     for (int i = 0; i < 9; i++)
     {
