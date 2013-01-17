@@ -281,10 +281,11 @@ void GlowLightControlDialog::createAddLightView()
 {
     add_light_view_.setSubItemType(ui::CoverView::type());
     add_light_view_.setPreferItemSize(QSize(-1, 40));
-    ODatas d;
 
+    ODatas d;
     OData * item = new OData;
-    item->insert(TAG_TITLE, ("  +  "));
+    QPixmap pixmap(":/images/add.png");
+    item->insert(TAG_COVER,  pixmap);
     d.push_back(item);
 
     add_light_view_.setMinimumHeight( 42 );
@@ -300,10 +301,11 @@ void GlowLightControlDialog::createSubLightView()
 {
     sub_light_view_.setSubItemType(ui::CoverView::type());
     sub_light_view_.setPreferItemSize(QSize(-1, 40));
-    ODatas d;
 
+    ODatas d;
     OData * item = new OData;
-    item->insert(TAG_TITLE,  ("  -  "));
+    QPixmap pixmap(":/images/sub.png");
+    item->insert(TAG_COVER,  pixmap);
     d.push_back(item);
 
     sub_light_view_.setMinimumHeight( 42 );
