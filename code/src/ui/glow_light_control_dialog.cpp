@@ -12,7 +12,7 @@ namespace ui
 static const int ITEM_HEIGHT = 50;
 static const int MY_WIDTH = 20;
 static const int MY_HEIGHT = 240;
-
+static const int TOTAL_RECT = 50;
 
 MoonLightProgressBar::MoonLightProgressBar(QWidget *parent)
     : QWidget(parent)
@@ -55,18 +55,40 @@ void MoonLightProgressBar::setValue(int value)
     onyx::screen::instance().flush(this, onyx::screen::ScreenProxy::DW);
 }
 
+void MoonLightProgressBar::addValue()
+{
+    int value = value_ +maximum()/TOTAL_RECT;
+    if(value > maximum())
+    {
+        value = maximum();
+    }
+    setValue(value);
+}
+
+void MoonLightProgressBar::subValue()
+{
+    int value = value_ - maximum()/TOTAL_RECT;
+    if(value < 0)
+    {
+        value = 1;
+    }
+    setValue(value);
+}
+
 void MoonLightProgressBar::changePoint(QPoint &pos)
 {
     step_value_ = width()/max_value_;
     if (rect().contains(pos))
     {
         double x = (double)pos.x();
-        qDebug() << "width()-80==" << width()-80;
         if(pos.x()%step_value_==0 || pos.x()<=30 || pos.x()>=(width()-80))
         {
             double percentage = x / width();
             percentage = percentage+0.005;
-            if(percentage >= 1.0)percentage=1.0;
+            if(percentage >= 1.0)
+            {
+                percentage=1.0;
+            }
             setValue(percentage*maximum());
         }
     }
@@ -86,7 +108,10 @@ void MoonLightProgressBar::mouseReleaseEvent(QMouseEvent *me)
         double x = (double)pt.x();
         double percentage = x / width();
         percentage = percentage+0.005;
-        if(percentage >= 1.0)percentage=1.0;
+        if(percentage >= 1.0)
+        {
+            percentage=1.0;
+        }
         setValue(percentage*maximum());
     }
 }
@@ -99,6 +124,7 @@ void MoonLightProgressBar::mouseMoveEvent(QMouseEvent *me)
 
 void MoonLightProgressBar::paintEvent(QPaintEvent *event)
 {
+    step_value_ = width()/max_value_;
     QWidget::paintEvent(event);
     QPainter painter(this);
     QPen draw_pen= painter.pen();
@@ -106,11 +132,25 @@ void MoonLightProgressBar::paintEvent(QPaintEvent *event)
     painter.setPen(draw_pen);
 
     painter.fillRect(this->rect(), QBrush(Qt::white));
-    painter.fillRect(QRect(rect().x(),rect().y(),
-                     rect().width()*value_/maximum(),rect().height()), QBrush(Qt::black));
+#if 1
+    int i = 0;
+    for(  ; i<=value_; i++)
+    {
+        painter.fillRect(QRect(rect().x()+((i*width()/max_value_)/(width()/50))*width()/50,rect().y()+2,
+                      width()/50-4,rect().height()-4), QBrush(Qt::black));
+    }
 
+    for(; i<=max_value_; i++)
+    {
+        painter.drawRect(QRect(rect().x()+(i*width()/max_value_)/(width()/50)*width()/50,rect().y()+2,
+                               width()/50-4,rect().height()-4));
+    }
+#else
+    painter.fillRect(QRect(rect().x()+i*step_value_,rect().y(),
+                     rect().width()*value_/maximum(),rect().height()), QBrush(Qt::black));
     painter.drawRect(rect().x(),rect().y(),
                      rect().width(),rect().height());
+#endif
 }
 
 
@@ -125,6 +165,8 @@ GlowLightControlDialog::GlowLightControlDialog(QWidget *parent)
 , slider_(0)
 , switch_view_(0, this)
 , ok_view_(0, this)
+, add_light_view_(0, this)
+, sub_light_view_(0, this)
 {
     setModal(true);
     createLayout();
@@ -158,6 +200,8 @@ void GlowLightControlDialog::createLayout()
 
     createSwitchView();
     createOKView();
+    createSubLightView();
+    createAddLightView();
 
     h_layout_.addWidget(&switch_view_);
     layout_.addLayout(&h_layout_);
@@ -166,13 +210,17 @@ void GlowLightControlDialog::createLayout()
     title_.setAlignment(Qt::AlignCenter);
     layout_.addWidget(&title_);
 
+
+//    slider_h_layout_.setContentsMargins(30, 0, 30, 0);
+    slider_h_layout_.setContentsMargins(0, 0, 0, 0);
+    slider_h_layout_.addWidget(&sub_light_view_);
+    slider_h_layout_.addWidget(&slider_);
+    slider_h_layout_.addWidget(&add_light_view_);
+
     // TODO may need different range
     slider_.setRange(1, 130);
     slider_.setFixedHeight(55);
     slider_.setValue(sys::SysStatus::instance().brightness());
-
-    slider_h_layout_.setContentsMargins(30, 0, 30, 0);
-    slider_h_layout_.addWidget(&slider_);
 
     layout_.addLayout(&slider_h_layout_);
     layout_.addSpacing(10);
@@ -184,6 +232,7 @@ void GlowLightControlDialog::createLayout()
     layout_.addLayout(&ok_h_layout_);
 
     connect(&slider_, SIGNAL(valueChanged(int)), this, SLOT(onValueChanged(int)));
+
 }
 
 void GlowLightControlDialog::createSwitchView()
@@ -227,6 +276,45 @@ void GlowLightControlDialog::createOKView()
     QObject::connect(&ok_view_, SIGNAL(itemActivated(CatalogView *, ContentView *, int)),
                      this, SLOT(onOkClicked()));
 }
+
+void GlowLightControlDialog::createAddLightView()
+{
+    add_light_view_.setSubItemType(ui::CoverView::type());
+    add_light_view_.setPreferItemSize(QSize(-1, 40));
+    ODatas d;
+
+    OData * item = new OData;
+    item->insert(TAG_TITLE, ("  +  "));
+    d.push_back(item);
+
+    add_light_view_.setMinimumHeight( 42 );
+    add_light_view_.setFixedGrid(1, 1);
+    add_light_view_.setFixedWidth(60);
+    add_light_view_.setData(d, true);
+
+    QObject::connect(&add_light_view_, SIGNAL(itemActivated(CatalogView *, ContentView *, int)),
+                     &slider_, SLOT(addValue()));
+}
+
+void GlowLightControlDialog::createSubLightView()
+{
+    sub_light_view_.setSubItemType(ui::CoverView::type());
+    sub_light_view_.setPreferItemSize(QSize(-1, 40));
+    ODatas d;
+
+    OData * item = new OData;
+    item->insert(TAG_TITLE,  ("  -  "));
+    d.push_back(item);
+
+    sub_light_view_.setMinimumHeight( 42 );
+    sub_light_view_.setFixedGrid(1, 1);
+    sub_light_view_.setFixedWidth(60);
+    sub_light_view_.setData(d, true);
+
+    QObject::connect(&sub_light_view_, SIGNAL(itemActivated(CatalogView *, ContentView *, int)),
+                     &slider_, SLOT(subValue()));
+}
+
 
 void GlowLightControlDialog::onSwitchClicked(CatalogView *catalog, ContentView *item, int user_data)
 {
