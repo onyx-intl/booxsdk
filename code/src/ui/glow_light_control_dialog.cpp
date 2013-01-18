@@ -68,7 +68,7 @@ void MoonLightProgressBar::addValue()
 void MoonLightProgressBar::subValue()
 {
     int value = value_ - maximum()/TOTAL_RECT;
-    if(value < 0)
+    if(value <= 0)
     {
         value = 1;
     }
