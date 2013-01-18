@@ -266,6 +266,7 @@
     <file>images/app_back.png</file>
     <file>images/sub.png</file>
     <file>images/add.png</file>
+    <file>images/citation_mode.png</file>
 
 
   </qresource>
