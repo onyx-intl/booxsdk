@@ -124,7 +124,9 @@ void MoonLightProgressBar::mouseMoveEvent(QMouseEvent *me)
 
 void MoonLightProgressBar::paintEvent(QPaintEvent *event)
 {
-    step_value_ = width()/max_value_;
+    double index = (double)(value_*TOTAL_RECT*1.0/max_value_);
+    index = index+0.5;
+    qDebug() << "index=" << index << "\n";
     QWidget::paintEvent(event);
     QPainter painter(this);
     QPen draw_pen= painter.pen();
@@ -132,25 +134,18 @@ void MoonLightProgressBar::paintEvent(QPaintEvent *event)
     painter.setPen(draw_pen);
 
     painter.fillRect(this->rect(), QBrush(Qt::white));
-#if 1
     int i = 0;
-    for(  ; i<=value_; i++)
+    for(  ; i<=(int)index; i++)
     {
-        painter.fillRect(QRect(rect().x()+((i*width()/max_value_)/(width()/50))*width()/50,rect().y()+2,
-                      width()/50-4,rect().height()-4), QBrush(Qt::black));
+        painter.fillRect(QRect(rect().x()+i*width()/TOTAL_RECT, rect().y()+2,
+                      width()/TOTAL_RECT-4, rect().height()-4), QBrush(Qt::black));
     }
 
-    for(; i<=max_value_; i++)
+    for(; i<=TOTAL_RECT; i++)
     {
-        painter.drawRect(QRect(rect().x()+(i*width()/max_value_)/(width()/50)*width()/50,rect().y()+2,
-                               width()/50-4,rect().height()-4));
+        painter.drawRect(QRect(rect().x()+i*width()/TOTAL_RECT, rect().y()+2,
+                               width()/TOTAL_RECT-4,rect().height()-4));
     }
-#else
-    painter.fillRect(QRect(rect().x()+i*step_value_,rect().y(),
-                     rect().width()*value_/maximum(),rect().height()), QBrush(Qt::black));
-    painter.drawRect(rect().x(),rect().y(),
-                     rect().width(),rect().height());
-#endif
 }
 
 
