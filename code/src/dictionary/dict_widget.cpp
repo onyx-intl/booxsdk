@@ -45,7 +45,7 @@ DictWidget::DictWidget(QWidget *parent,
     , explanation_button_(QIcon(":/images/explanation.png"), 0)
     , similar_words_button_(QIcon(":/images/similar_words.png"), 0)
     , dictionaries_button_(QIcon(":/images/dictionary_list.png"), 0)
-    , position_button_(QIcon(":/images/navigation.png"), 0)
+    , position_button_(QIcon(":/images/adjust_position.png"), 0)
     , open_dictionary_tool_button_(QIcon(":/images/open_dictionary_tool.png"), 0)
     , close_button_(QIcon(":/images/close.png"), 0)
     , button_group_(0)
