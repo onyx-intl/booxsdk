@@ -113,6 +113,7 @@ private:
     QButtonGroup button_group_;
     QTextDocument doc_;
     QString word_;                      ///< Word currently queried.
+    QString fuzzy_word_;
     QStringList similar_words_;
     int similar_words_offset_;
     QTimer timer_;                      ///< Timer to update the screen.
