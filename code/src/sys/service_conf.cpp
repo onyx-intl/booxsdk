@@ -269,7 +269,6 @@ void ServiceConfig::loadDefaultServices()
             onyx_reader.mutable_extensions().push_back("doc");
         }
         onyx_reader.mutable_extensions().push_back("txt");
-        onyx_reader.mutable_extensions().push_back("pdb");
         onyx_reader.mutable_extensions().push_back("fb2");
         onyx_reader.mutable_extensions().push_back("oeb");
         onyx_reader.mutable_extensions().push_back("ztxt");
@@ -295,6 +294,7 @@ void ServiceConfig::loadDefaultServices()
         {
             cool_reader.mutable_extensions().push_back("doc");
         }
+        cool_reader.mutable_extensions().push_back("pdb");
         cool_reader.mutable_extensions().push_back("txt");
         cool_reader.mutable_extensions().push_back("fb2");
         cool_reader.mutable_extensions().push_back("html");
