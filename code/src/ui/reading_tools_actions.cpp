@@ -273,6 +273,12 @@ void ReadingToolsActions::generateActions(const vector<ReadingToolsType> & value
                 act->setIcon(QIcon(QPixmap(":/images/edit.png")));
             }
             break;
+        case DISPLAY_HYPHENATION:
+            {
+                act->setText(QCoreApplication::tr("Show Hyphenation"));
+                act->setIcon(QIcon(QPixmap(":/images/hyphenation.png")));
+            }
+            break;
         default:
             break;
         }
@@ -361,6 +367,12 @@ void ReadingToolsActions::setActionStatus(const ReadingToolsType type,
                 text = QCoreApplication::tr("Auto-load Image");
             selected ? act->setIcon(QIcon(QPixmap(":/images/don't_auto_load_image.png"))) :
                 act->setIcon(QIcon(QPixmap(":/images/auto_load_image.png")));
+        }
+        break;
+    case DISPLAY_HYPHENATION:
+        {
+            selected ? text = QCoreApplication::tr("Hide Hyphenation") :
+                text = QCoreApplication::tr("Show Hyphenation");
         }
         break;
     default:
