@@ -109,7 +109,6 @@ namespace ui
         int ret = QDialog::exec();
         if (ret == QDialog::Accepted)
         {
-            onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GU, true, onyx::screen::ScreenCommand::WAIT_ALL);
             rotate(rotation_);
         }
         return ret;

@@ -190,6 +190,7 @@ int VolumeControlDialog::getVolumeIndex(int volume_value)
 
 void VolumeControlDialog::manipulateVolume(bool increase)
 {
+    resetTimer();
     int volume_index = getVolumeIndex(current_);
     int size = volumes.size();
     if (increase && ++volume_index >= size)

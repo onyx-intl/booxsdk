@@ -13,18 +13,19 @@ namespace cms
 
 enum DownloadState
 {
-    STATE_INVALID = -1,
-    DOWNLOADING,
-    FINISHED,       ///< Finished but not read.
-    FAILED,         ///< Don't ever download it again.
-    PENDING,        ///< Download next time.
-    FINISHED_READ,  ///< Download finished and has been read.
+    STATE_INVALID = 0,
+    DOWNLOADING = 1,
+    FINISHED = 2,       ///< Finished but not read.
+    FAILED = 3,         ///< Don't ever download it again.
+    PENDING = 4,        ///< Download next time.
+    FINISHED_READ = 5   ///< Download finished and has been read.
 };
 
 class DownloadItemInfo : public OData
 {
 public:
     explicit DownloadItemInfo(const QVariantMap & vm = QVariantMap());
+    explicit DownloadItemInfo(const QString &u);
     ~DownloadItemInfo();
 
     bool operator == (const DownloadItemInfo &right);
@@ -49,6 +50,10 @@ public:
 
     QString timeStamp() const;
     void setTimeStamp(const QString & timeStamp);
+
+    int internalId() const;
+    void setInternalId(int id);
+
 };
 
 typedef QVector<DownloadItemInfo> DownloadInfoList;
@@ -95,21 +100,25 @@ public:
     bool open();
     bool close();
 
-    DownloadInfoList pendingList(const DownloadInfoList & input = DownloadInfoList(),
+    DownloadInfoList pendingList(QStringList input = QStringList(),
                              bool force_all = false,
                              bool sort = true);
 
     bool update(const DownloadItemInfo & item);
     bool updateState(const QString & url, DownloadState state = FINISHED);
-    bool remove(const QString & url);
-
-    QStringList list(DownloadState state = FINISHED);
-    DownloadInfoList all(DownloadState state = STATE_INVALID);
 
     int  itemCount(DownloadState state = FINISHED);
+    QStringList list(DownloadState state = FINISHED);
+    DownloadInfoList all(DownloadState state = STATE_INVALID);
     bool markAsRead(const QString & path, DownloadState state = FINISHED_READ);
     void markAllAsRead(DownloadState state = FINISHED_READ);
+    bool remove(const QString & url);
     QString getPathByUrl(const QString & url);
+
+    QString getPathById(int id);
+
+    bool infoListContains(const DownloadInfoList & info_list, const DownloadItemInfo &item);
+    void infoListRemove(DownloadInfoList & info_list, const DownloadItemInfo &item);
 
 private:
     bool makeSureTableExist(QSqlDatabase &db);

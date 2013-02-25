@@ -74,18 +74,37 @@ QVector<int> VolumeConfig::volumes()
         }
         else if (sys::isImx508())
         {
-            VOLUMES.push_back(0);
-            VOLUMES.push_back(60);
-            VOLUMES.push_back(64);
-            VOLUMES.push_back(68);
-            VOLUMES.push_back(72); //5
-            VOLUMES.push_back(76);
-            VOLUMES.push_back(80);
-            VOLUMES.push_back(85);
-            VOLUMES.push_back(90);
-            VOLUMES.push_back(95); //10
-            VOLUMES.push_back(100);
+            if (sys::isIRTouch())
+            {
+                qDebug() << "is imx508, is ir touch";
+                VOLUMES.push_back(0);
+                VOLUMES.push_back(2);
+                VOLUMES.push_back(8);
+                VOLUMES.push_back(16);
+                VOLUMES.push_back(30);//5
+                VOLUMES.push_back(45);
+                VOLUMES.push_back(55);
+                VOLUMES.push_back(65);
+                VOLUMES.push_back(70);
+                VOLUMES.push_back(85);//10
+                VOLUMES.push_back(100);
+            }
+            else
+            {
+                VOLUMES.push_back(0);
+                VOLUMES.push_back(60);
+                VOLUMES.push_back(64);
+                VOLUMES.push_back(68);
+                VOLUMES.push_back(72); //5
+                VOLUMES.push_back(76);
+                VOLUMES.push_back(80);
+                VOLUMES.push_back(85);
+                VOLUMES.push_back(90);
+                VOLUMES.push_back(95); //10
+                VOLUMES.push_back(100);
+            }
         }
+
         else
         {
             VOLUMES.push_back(0);

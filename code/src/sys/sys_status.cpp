@@ -327,15 +327,31 @@ void SysStatus::installSlots()
     if (!connection_.connect(service, object, iface,
                              "requestDRMUserInfo",
                              this,
-                             SLOT(onRequestDRMUserInfo(const QString &, const QString &))))
+                             SLOT(onRequestDRMUserInfo(const QString &, const QStringList &))))
     {
         qDebug("\nCan not connect the requestDRMUserInfo signal\n");
     }
 
     if (!connection_.connect(service, object, iface,
+                             "fulfillmentStart",
+                             this,
+                             SLOT(onFulfillmentStart(const QString &))))
+    {
+        qDebug("\nCan not connect the fulfillmentStart signal\n");
+    }
+
+    if (!connection_.connect(service, object, iface,
+                             "activationFinished",
+                             this,
+                             SLOT(onActivationFinished(bool))))
+    {
+        qDebug("\nCan not connect the activationFinished signal\n");
+    }
+
+    if (!connection_.connect(service, object, iface,
                              "fulfillmentFinished",
                              this,
-                             SLOT(onFulfillmentFinished(const QString &))))
+                             SLOT(onFulfillmentFinished(const QString &, const QString &,int,int))))
     {
         qDebug("\nCan not connect the fulfillmentFinished signal\n");
     }
@@ -1564,6 +1580,22 @@ void SysStatus::addDRMEnvironment()
     }
 }
 
+void SysStatus::initDRMService()
+{
+    QDBusMessage message = QDBusMessage::createMethodCall(
+        service,            // destination
+        object,             // path
+        iface,              // interface
+        "initDRMService"      // method.
+    );
+    QDBusMessage reply = connection_.call(message);
+    if (reply.type() == QDBusMessage::ErrorMessage)
+    {
+        qWarning("%s", qPrintable(reply.errorMessage()));
+    }
+}
+
+
 // TODO, implement in system manager later.
 bool SysStatus::setAsScreensaver(const QString & path)
 {
@@ -2093,14 +2125,27 @@ void SysStatus::onVolumeDownPressed()
     emit volumeDownPressed();
 }
 
-void SysStatus::onRequestDRMUserInfo(const QString &string, const QString & param)
+void SysStatus::onRequestDRMUserInfo(const QString &string, const QStringList & param)
 {
     emit requestDRMUserInfo(string, param);
 }
 
-void SysStatus::onFulfillmentFinished(const QString & string)
+void SysStatus::onFulfillmentStart(const QString & url)
 {
-    emit fulfillmentFinished(string);
+    emit fulfillmentStart(url);
+}
+
+void SysStatus::onFulfillmentFinished(const QString & url,
+                                      const QString & string,
+                                      int current,
+                                      int total)
+{
+    emit fulfillmentFinished(url, string, current, total);
+}
+
+void SysStatus::onActivationFinished(bool succeeded)
+{
+    emit activationFinished(succeeded);
 }
 
 void SysStatus::onLoanReturnFinished(const QString & string)

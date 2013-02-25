@@ -69,7 +69,7 @@ void OnyxDialog::createDefaultLayout()
     vbox_.setContentsMargins(0, 0, 0, 0);
 
     title_vbox_.setSpacing(0);
-    title_vbox_.setContentsMargins(SPACING, 0, SPACING, 0);
+    title_vbox_.setContentsMargins(SPACING, 0, SPACING*5, 0);
 
     // title hbox.
     title_icon_label_.setPixmap(QPixmap(":/images/dialog.png"));
@@ -84,6 +84,7 @@ void OnyxDialog::createDefaultLayout()
     close_button_.setIcon(QIcon(close_pixmap));
     close_button_.setFocusPolicy(Qt::NoFocus);
     connect(&close_button_, SIGNAL(clicked()), this, SLOT(onCloseClicked()), Qt::QueuedConnection);
+    connect(&close_button_, SIGNAL(pressed()), this, SLOT(onClosePressed()), Qt::QueuedConnection);
 
     title_hbox_.addWidget(&title_icon_label_);
     title_hbox_.addSpacing(SPACING * 4);
@@ -144,6 +145,13 @@ void OnyxDialog::done(int r)
 {
     onyx::screen::instance().ensureUpdateFinished();
     return QDialog::done(r);
+}
+
+void OnyxDialog::onClosePressed()
+{
+    QPixmap close_pressed_pixmap(":/images/close_pressed.png");
+    close_button_.setIcon(QIcon(close_pressed_pixmap));
+    onyx::screen::instance().updateWidget(&close_button_, onyx::screen::ScreenProxy::GU);
 }
 
 void OnyxDialog::onCloseClicked()

@@ -45,7 +45,7 @@ DictWidget::DictWidget(QWidget *parent,
     , explanation_button_(QIcon(":/images/explanation.png"), 0)
     , similar_words_button_(QIcon(":/images/similar_words.png"), 0)
     , dictionaries_button_(QIcon(":/images/dictionary_list.png"), 0)
-    , position_button_(QIcon(":/images/navigation.png"), 0)
+    , position_button_(QIcon(":/images/adjust_position.png"), 0)
     , open_dictionary_tool_button_(QIcon(":/images/open_dictionary_tool.png"), 0)
     , close_button_(QIcon(":/images/close.png"), 0)
     , button_group_(0)
@@ -143,10 +143,19 @@ bool DictWidget::lookup(const QString &word)
     // Clean the word.
     word_ = word.trimmed();
 
+    //remove quotes (“ ” " ) If it in the words
+    if(word_.contains(QChar(0x201C)) || word_.contains(QChar(0x201D)) || word_.contains(QChar(0x0022)))
+    {
+        word_.remove(QChar(0x201C));
+        word_.remove(QChar(0x201D));
+        word_.remove(QChar(0x0022));
+    }
+
     // Title
     QString result;
     QString fuzzy_word("");
     bool ret = dict_.fuzzyTranslate(word_, result, fuzzy_word);
+    fuzzy_word_ = fuzzy_word;
 
     formatResult(result, fuzzy_word);
 
@@ -404,6 +413,15 @@ void DictWidget::updateSimilarWordsModel(int count)
     // Pick up similar words from current dictionary.
     similar_words_.clear();
     dict_.similarWords(word_, similar_words_, similar_words_offset_, count);
+
+    if(similar_words_.isEmpty())
+    {
+        if(!fuzzy_word_.isEmpty())
+        {
+            similar_words_.clear();
+            dict_.similarWords(fuzzy_word_, similar_words_, similar_words_offset_, count);
+        }
+    }
 
     QString result;
     QString fuzzy_word("");

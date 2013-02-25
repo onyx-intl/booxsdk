@@ -402,7 +402,7 @@ TEST(ContentManagerTest, DownloadDB)
     list = db.pendingList();
     DownloadItemInfo item;
     item.setUrl(url);
-    EXPECT_TRUE(list.contains(item));
+    EXPECT_TRUE(db.infoListContains(list, item));
 
 }
 

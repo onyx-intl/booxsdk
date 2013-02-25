@@ -94,6 +94,7 @@ enum ReadingToolsType
     MARGIN_SETTING,
     WEB_BROWSER_MODE,
     KEY_MAPPING,
+    DISPLAY_HYPHENATION,
 };
 
 enum NetworkType

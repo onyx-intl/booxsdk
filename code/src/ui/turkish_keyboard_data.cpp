@@ -1,24 +1,21 @@
 #include "onyx/base/base.h"
 #include "onyx/sys/sys.h"
-#include "onyx/ui/hungarian_keyboard_data.h"
+#include "onyx/ui/turkish_keyboard_data.h"
 #include "onyx/ui/onyx_keyboard_utils.h"
 
 namespace ui
 {
 
-static const QChar Hungarian_Character[9][2]={
-  {QChar(0x00C1), QChar(0x00E1)},
-  {QChar(0x00C9), QChar(0x00E9)},
-  {QChar(0x00CD), QChar(0x00ED)},
-  {QChar(0x00D3), QChar(0x00F3)},
-  {QChar(0x00D6), QChar(0x00F6)},
-  {QChar(0x0150), QChar(0x0151)},
-  {QChar(0x00DA), QChar(0x00FA)},
-  {QChar(0x00DC), QChar(0x00FC)},
-  {QChar(0x0170), QChar(0x0171)}
+static const QChar Turkish_Character[6][2]={
+  {QChar(0x00C7), QChar(0x00E7)}, /*Ç*/
+  {QChar(0x011E), QChar(0x011F)}, /*Ğ*/
+  {QChar(0x0130), QChar(0x0131)}, /*İ*/
+  {QChar(0x00D6), QChar(0x00F6)}, /*Ö*/
+  {QChar(0x015E), QChar(0x015F)}, /*Ş*/
+  {QChar(0x00DC), QChar(0x00FC)} /*Ü*/
 };
 
-HungarianKeyboardData::HungarianKeyboardData()
+TurkishKeyboardData::TurkishKeyboardData()
     : KeyboardData()
 {
     initTopKeyCode();
@@ -38,11 +35,11 @@ HungarianKeyboardData::HungarianKeyboardData()
     initRightKeySymbolCode();
 }
 
-HungarianKeyboardData::~HungarianKeyboardData()
+TurkishKeyboardData::~TurkishKeyboardData()
 {
 }
 
-void HungarianKeyboardData::initTopKeyCode()
+void TurkishKeyboardData::initTopKeyCode()
 {
     const QChar chs[] = { '1', '2', '3', '4', '5', '6', '7', '8', '9', '0'};
     for (int i = 0; i < 10; i++)
@@ -52,7 +49,7 @@ void HungarianKeyboardData::initTopKeyCode()
     }
 }
 
-void HungarianKeyboardData::initLeftKeyCode()
+void TurkishKeyboardData::initLeftKeyCode()
 {
     const QChar chs[] = { 'q', 'w', 'e', 'a', 's', 'd', 'z', 'x', 'c' };
     for (int i = 0; i < 9; i++)
@@ -62,7 +59,7 @@ void HungarianKeyboardData::initLeftKeyCode()
     }
 }
 
-void HungarianKeyboardData::initMiddleKeyCode()
+void TurkishKeyboardData::initMiddleKeyCode()
 {
     const QChar chs[] = {'r', 't', 'y', 'f', 'g', 'h', 'v', 'b', 'n'};
     for (int i=0; i<9; i++)
@@ -72,9 +69,9 @@ void HungarianKeyboardData::initMiddleKeyCode()
     }
 }
 
-void HungarianKeyboardData::initRightKeyCode()
+void TurkishKeyboardData::initRightKeyCode()
 {
-    const QChar chs[] = {'u', 'i', 'o', 'j', 'k', 'l', 'm', 'p', Hungarian_Character[0][1]};//};
+    const QChar chs[] = {'u', 'i', 'o', 'j', 'k', 'l', 'm', 'p', Turkish_Character[0][1]};//};
     for (int i=0; i<9; i++)
     {
         ODataPtr dd(createData(QString(chs[i])));
@@ -82,21 +79,18 @@ void HungarianKeyboardData::initRightKeyCode()
     }
 }
 
-void HungarianKeyboardData::initBottomKeyCode()
+void TurkishKeyboardData::initBottomKeyCode()
 {
-    const QChar chs[] = {Hungarian_Character[1][1], Hungarian_Character[2][1],
-            Hungarian_Character[3][1], Hungarian_Character[4][1],
-            Hungarian_Character[5][1]};
-    for (int i=0; i<5; i++)
+    const QChar chs[] = {Turkish_Character[1][1], Turkish_Character[2][1], Turkish_Character[3][1], Turkish_Character[4][1], Turkish_Character[5][1], ' '};//{'+', '-', '_', '"', ',', };
+    for (int i=0; i<6; i++)
     {
         ODataPtr dd(createData(QString(chs[i])));
         bottom_codes_.push_back(dd);
     }
 
-    bottom_codes_.push_back(ODataPtr(createSpaceData()));
     bottom_codes_.push_back(ODataPtr(createBackspaceData()));
 
-    const QChar chs_next[] = {Hungarian_Character[7][1], Hungarian_Character[8][1], Hungarian_Character[6][1]}; //{};
+    const QChar chs_next[] = {' ', ' ', ' '}; //{};
     for (int i=0; i<3; i++)
     {
         ODataPtr dd(createData(QString(chs_next[i])));
@@ -107,7 +101,7 @@ void HungarianKeyboardData::initBottomKeyCode()
     //bottom_codes_.push_back(dd);
 }
 
-void HungarianKeyboardData::initTopKeyShiftCode()
+void TurkishKeyboardData::initTopKeyShiftCode()
 {
     const QChar chs[] = { '!', '@', '#', '$', '%', '^', '&', '*', '(', ')'};
     for (int i = 0; i < 10; i++)
@@ -117,7 +111,7 @@ void HungarianKeyboardData::initTopKeyShiftCode()
     }
 }
 
-void HungarianKeyboardData::initLeftKeyShiftCode()
+void TurkishKeyboardData::initLeftKeyShiftCode()
 {
     const QChar chs[] = { 'Q', 'W', 'E', 'A', 'S', 'D', 'Z', 'X', 'C' };
     for (int i = 0; i < 9; i++)
@@ -127,7 +121,7 @@ void HungarianKeyboardData::initLeftKeyShiftCode()
     }
 }
 
-void HungarianKeyboardData::initMiddleKeyShiftCode()
+void TurkishKeyboardData::initMiddleKeyShiftCode()
 {
     const QChar chs[] = {'R', 'T', 'Y', 'F', 'G', 'H', 'V', 'B', 'N'};
     for (int i=0; i<9; i++)
@@ -137,9 +131,9 @@ void HungarianKeyboardData::initMiddleKeyShiftCode()
     }
 }
 
-void HungarianKeyboardData::initRightKeyShiftCode()
+void TurkishKeyboardData::initRightKeyShiftCode()
 {
-    const QChar chs[] = { 'U', 'I', 'O', 'J', 'K', 'L', 'M', 'P', Hungarian_Character[0][0]};//',' };
+    const QChar chs[] = { 'U', 'I', 'O', 'J', 'K', 'L', 'M', 'P', Turkish_Character[0][1]};//',' };
     for (int i=0; i<9; i++)
     {
         ODataPtr dd(createData(QString(chs[i])));
@@ -147,37 +141,35 @@ void HungarianKeyboardData::initRightKeyShiftCode()
     }
 }
 
-void HungarianKeyboardData::initBottomKeyShiftCode()
+void TurkishKeyboardData::initBottomKeyShiftCode()
 {
-    const QChar chs[] = {Hungarian_Character[1][0], Hungarian_Character[2][0],
-            Hungarian_Character[3][0], Hungarian_Character[4][0],
-            Hungarian_Character[5][0]};
-    for (int i=0; i<5; i++)
+    const QChar chs[] = {Turkish_Character[1][0], Turkish_Character[2][0], Turkish_Character[3][0], Turkish_Character[4][0], Turkish_Character[5][0], ' '};//{'\\', '/', '[', ']', '=', };
+    for (int i=0; i<6; i++)
     {
         ODataPtr dd(createData(QString(chs[i])));
         bottom_shift_codes_.push_back(dd);
     }
 
-    bottom_shift_codes_.push_back(ODataPtr(createSpaceData()));
     bottom_shift_codes_.push_back(ODataPtr(createBackspaceData()));
 
-    const QChar chs_next[] = {Hungarian_Character[7][0], Hungarian_Character[8][0], Hungarian_Character[6][0]};//{'?', ':'};
+    const QChar chs_next[] = {' ', ' ', ' '};//{'?', ':'};
     for (int i=0; i<3; i++)
     {
         ODataPtr dd(createData(QString(chs_next[i])));
         bottom_shift_codes_.push_back(dd);
     }
 
-
+    
     //dd = createEnterData();
     //bottom_shift_codes_.push_back(dd);
 }
 
-void HungarianKeyboardData::initLeftKeySymbolCode()
+void TurkishKeyboardData::initLeftKeySymbolCode()
 {
-    const QString chs[] = {"~", "_", "+",
-                           "`", "-", "=",
-                           "www.", ".com", "..."};
+    const QString chs[] = {"...", "{", "}",
+                           "www.", ".com", QString(QChar(0x00A2)),
+                           QString(QChar(0x00B9)), QString(QChar(0x00B2)),
+                           QString(QChar(0x00B3)), };
     for (int i = 0; i < 9; i++)
     {
         ODataPtr dd(createData(chs[i]));
@@ -190,11 +182,11 @@ void HungarianKeyboardData::initLeftKeySymbolCode()
 
 }
 
-void HungarianKeyboardData::initMiddleKeySymbolCode()
+void TurkishKeyboardData::initMiddleKeySymbolCode()
 {
-    const QChar chs[] = {'{', '}', '|',
-                         '[', ']', '\\',
-                         '<', '>', ',', };
+    const QChar chs[] = {'~', '<', '>',
+                         '|', '`', QChar(0x20AC),
+                         '.', '+', '-', };
     for (int i = 0; i < 9; i++)
     {
         ODataPtr dd(createData(QString(chs[i])));
@@ -202,11 +194,11 @@ void HungarianKeyboardData::initMiddleKeySymbolCode()
     }
 }
 
-void HungarianKeyboardData::initRightKeySymbolCode()
+void TurkishKeyboardData::initRightKeySymbolCode()
 {
-    const QChar chs[] = {':', '"', '?',
-                         ';', '\'', '/',
-                         '.', QChar(0x002D), QChar(0x00BB)};
+    const QChar chs[] = {'_', '"', ',',
+                         QChar(0x00AD), '\'', ';',
+                         QChar(0x00AB), QChar(0x00BB)};
     for (int i = 0; i < 8; i++)
     {
         ODataPtr dd(createData(QString(chs[i])));
@@ -216,3 +208,4 @@ void HungarianKeyboardData::initRightKeySymbolCode()
 }
 
 }
+

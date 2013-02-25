@@ -41,6 +41,7 @@ protected:
 
 protected Q_SLOTS:
     virtual void onCloseClicked();
+    virtual void onClosePressed();
 
 protected:
     static const int SPACING = 2;

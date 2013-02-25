@@ -859,7 +859,7 @@ LegacyPowerManagementDialog *StatusBar::legacyPMDialog(bool create)
 
 PowerManagementDialog *StatusBar::pmDialog(bool create)
 {
-    if (!pm_dialog_ && create)
+//    if (!pm_dialog_ && create)
     {
         pm_dialog_.reset(new PowerManagementDialog(0, sys::SysStatus::instance()));
     }
@@ -959,8 +959,11 @@ StatusBarItem *StatusBar::item(const StatusBarItemType type, bool create)
         item = new StatusBarItemViewport(this);
         break;
     case APP_CONFIG:
-        item = new StatusBarItemApp(this, APP_CONFIG);
-        connect(item, SIGNAL(clicked(int)), this, SLOT(onAppClicked(int)));
+        if (sys::SysStatus::instance().hasTouchScreen())
+        {
+            item = new StatusBarItemApp(this, APP_CONFIG);
+            connect(item, SIGNAL(clicked(int)), this, SLOT(onAppClicked(int)));
+        }
         break;
     case APP_DEFINED:
         item = new StatusBarItemApp(this, APP_DEFINED);
