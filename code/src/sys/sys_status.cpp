@@ -1982,6 +1982,44 @@ bool SysStatus::queryLedSignal()
     return true;
 }
 
+void SysStatus::addTaskRecord(const QString & name, const QString & displayName, const QStringList & strings)
+{
+    QDBusMessage message = QDBusMessage::createMethodCall(
+        service,            // destination
+        object,             // path
+        iface,              // interface
+        "addTaskRecord"      // method.
+    );
+
+    message << name;
+    message << displayName;
+    message << strings;
+    QDBusMessage reply = connection_.call(message);
+    if (reply.type() == QDBusMessage::ErrorMessage)
+    {
+        qWarning("%s", qPrintable(reply.errorMessage()));
+    }
+}
+
+void SysStatus::removeTaskRecord(const QString & name,  const QString & displayName, const QStringList & strings)
+{
+    QDBusMessage message = QDBusMessage::createMethodCall(
+        service,            // destination
+        object,             // path
+        iface,              // interface
+        "removeTaskRecord"      // method.
+    );
+
+    message << name;
+    message << displayName;
+    message << strings;
+    QDBusMessage reply = connection_.call(message);
+    if (reply.type() == QDBusMessage::ErrorMessage)
+    {
+        qWarning("%s", qPrintable(reply.errorMessage()));
+    }
+}
+
 void SysStatus::dump()
 {
     int left;

@@ -158,6 +158,10 @@ class SysStatus : public QObject
     bool requestMultiTouch();
     bool queryLedSignal();
 
+    void addTaskRecord(const QString & name, const QString & displayName, const QStringList & strings);
+    void removeTaskRecord(const QString & name,  const QString & displayName, const QStringList & strings);
+
+
     // The following signals must be the same with system manager.
     // Need a better way to sync them.
   signals:
