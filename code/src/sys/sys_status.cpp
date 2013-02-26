@@ -1982,7 +1982,7 @@ bool SysStatus::queryLedSignal()
     return true;
 }
 
-void SysStatus::addTaskRecord(const QString & name, const QString & displayName, const QStringList & strings)
+void SysStatus::addTaskRecord(const QStringList & strings)
 {
     QDBusMessage message = QDBusMessage::createMethodCall(
         service,            // destination
@@ -1991,8 +1991,6 @@ void SysStatus::addTaskRecord(const QString & name, const QString & displayName,
         "addTaskRecord"      // method.
     );
 
-    message << name;
-    message << displayName;
     message << strings;
     QDBusMessage reply = connection_.call(message);
     if (reply.type() == QDBusMessage::ErrorMessage)
@@ -2001,7 +1999,7 @@ void SysStatus::addTaskRecord(const QString & name, const QString & displayName,
     }
 }
 
-void SysStatus::removeTaskRecord(const QString & name,  const QString & displayName, const QStringList & strings)
+void SysStatus::removeTaskRecord(const QString & name)
 {
     QDBusMessage message = QDBusMessage::createMethodCall(
         service,            // destination
@@ -2011,13 +2009,33 @@ void SysStatus::removeTaskRecord(const QString & name,  const QString & displayN
     );
 
     message << name;
-    message << displayName;
-    message << strings;
     QDBusMessage reply = connection_.call(message);
     if (reply.type() == QDBusMessage::ErrorMessage)
     {
         qWarning("%s", qPrintable(reply.errorMessage()));
     }
+}
+
+QStringList SysStatus::allTasks()
+{
+    QDBusMessage message = QDBusMessage::createMethodCall(
+        service,            // destination
+        object,             // path
+        iface,              // interface
+        "allTasks"      // method.
+    );
+
+    QDBusMessage reply = connection_.call(message);
+    if (reply.type() == QDBusMessage::ErrorMessage)
+    {
+        qWarning("%s", qPrintable(reply.errorMessage()));
+    }
+    QStringList result;
+    foreach (QVariant v,  reply.arguments())
+    {
+        result.append(v.toString());
+    }
+    return result;
 }
 
 void SysStatus::dump()
