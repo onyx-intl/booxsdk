@@ -70,6 +70,8 @@ private:
     void createOKView();
     void createSubLightView();
     void createAddLightView();
+    void creatStartUpView();
+    void creatWakeUpView();
 
 private:
     QVBoxLayout layout_;
@@ -83,6 +85,9 @@ private:
     CatalogView ok_view_;
     CatalogView add_light_view_;
     CatalogView sub_light_view_;
+    CatalogView wake_up_option_view_;
+    CatalogView start_up_option_view_;
+
 };
 
 
