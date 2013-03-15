@@ -222,7 +222,7 @@ void ServiceConfig::loadDefaultServices()
             naboo_viewer_service.mutable_extensions().push_back("epub");
         }
         DEFAULT_SERVICES.push_back(naboo_viewer_service);
-
+#if 0
         // onyx pdf reader service.
         onyx_pdf_reader_service.mutable_extensions().push_back("pdf");
         if (!enable_fb_epub)
@@ -230,7 +230,7 @@ void ServiceConfig::loadDefaultServices()
             onyx_pdf_reader_service.mutable_extensions().push_back("epub");
         }
         DEFAULT_SERVICES.push_back(onyx_pdf_reader_service);
-
+#endif
         // image service.
         if (note_service.mutable_extensions().size() <= 0)
         {
