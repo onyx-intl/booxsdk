@@ -453,6 +453,14 @@ void SysStatus::installSlots()
     }
 
     if (!connection_.connect(service, object, iface,
+                             "taskActivated",
+                             this,
+                             SLOT(onTaskActivated(const QString &))))
+    {
+        qDebug("\nCan not connect the taskActivated signal\n");
+    }
+
+    if (!connection_.connect(service, object, iface,
                              "configKeyboard",
                              this,
                              SLOT(onConfigKeyboard())))
@@ -2016,6 +2024,23 @@ void SysStatus::removeTaskRecord(const QString & name)
     }
 }
 
+void SysStatus::activateTask(const QString & name)
+{
+    QDBusMessage message = QDBusMessage::createMethodCall(
+        service,            // destination
+        object,             // path
+        iface,              // interface
+        "activateTask"      // method.
+    );
+
+    message << name;
+    QDBusMessage reply = connection_.call(message);
+    if (reply.type() == QDBusMessage::ErrorMessage)
+    {
+        qWarning("%s", qPrintable(reply.errorMessage()));
+    }
+}
+
 QStringList SysStatus::allTasks()
 {
     QDBusMessage message = QDBusMessage::createMethodCall(
@@ -2252,6 +2277,11 @@ void SysStatus::onMultiTouchHoldDetected(int x1, int y1, int width1, int height1
 void SysStatus::onLedSignal(const QByteArray & x, const QByteArray & y)
 {
     emit ledSignal(x, y);
+}
+
+void SysStatus::onTaskActivated(const QString & name)
+{
+    emit taskActivated(name);
 }
 
 void SysStatus::onConfigKeyboard()

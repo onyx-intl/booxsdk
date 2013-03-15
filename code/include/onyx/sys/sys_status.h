@@ -160,6 +160,7 @@ class SysStatus : public QObject
 
     void addTaskRecord(const QStringList & strings);
     void removeTaskRecord(const QString & name);
+    void activateTask(const QString & name);
     QStringList allTasks();
 
     // The following signals must be the same with system manager.
@@ -223,6 +224,8 @@ class SysStatus : public QObject
 
     void userBehaviorSignal(const QByteArray &data);
 
+    void taskActivated(const QString & name);
+
   private slots:
     void onBatteryChanged(int, int);
     void onMountTreeChanged(bool mounted, const QString &mount_point);
@@ -268,6 +271,8 @@ class SysStatus : public QObject
     void onMultiTouchReleaseDetected(int, int, int, int, int, int, int, int);
     void onMultiTouchHoldDetected(int, int, int, int, int, int, int, int, int, int);
     void onLedSignal(const QByteArray & x, const QByteArray & y);
+
+    void onTaskActivated(const QString & name);
 
     void onConfigKeyboard();
 
