@@ -2007,7 +2007,7 @@ void SysStatus::addTaskRecord(const QStringList & strings)
     }
 }
 
-void SysStatus::removeTaskRecord(const QString & name)
+void SysStatus::removeTaskRecord(const QStringList & name)
 {
     QDBusMessage message = QDBusMessage::createMethodCall(
         service,            // destination
@@ -2024,7 +2024,7 @@ void SysStatus::removeTaskRecord(const QString & name)
     }
 }
 
-void SysStatus::activateTask(const QString & name)
+void SysStatus::activateTask(const QStringList & name)
 {
     QDBusMessage message = QDBusMessage::createMethodCall(
         service,            // destination

@@ -159,8 +159,8 @@ class SysStatus : public QObject
     bool queryLedSignal();
 
     void addTaskRecord(const QStringList & strings);
-    void removeTaskRecord(const QString & path);
-    void activateTask(const QString & path);
+    void removeTaskRecord(const QStringList & strings);
+    void activateTask(const QStringList & strings);
     QStringList allTasks();
 
     // The following signals must be the same with system manager.
