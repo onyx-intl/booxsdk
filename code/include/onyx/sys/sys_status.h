@@ -161,6 +161,7 @@ class SysStatus : public QObject
     void addTaskRecord(const QStringList & strings);
     void removeTaskRecord(const QStringList & strings);
     void activateTask(const QStringList & strings);
+    void removeAllTaskRecords();
     QStringList allTasks();
 
     // The following signals must be the same with system manager.

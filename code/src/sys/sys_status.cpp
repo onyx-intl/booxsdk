@@ -2024,6 +2024,22 @@ void SysStatus::removeTaskRecord(const QStringList & name)
     }
 }
 
+void SysStatus::removeAllTaskRecords()
+{
+    QDBusMessage message = QDBusMessage::createMethodCall(
+        service,            // destination
+        object,             // path
+        iface,              // interface
+        "removeAllTaskRecords"      // method.
+    );
+
+    QDBusMessage reply = connection_.call(message);
+    if (reply.type() == QDBusMessage::ErrorMessage)
+    {
+        qWarning("%s", qPrintable(reply.errorMessage()));
+    }
+}
+
 void SysStatus::activateTask(const QStringList & name)
 {
     QDBusMessage message = QDBusMessage::createMethodCall(
