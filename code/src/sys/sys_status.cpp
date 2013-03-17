@@ -455,7 +455,7 @@ void SysStatus::installSlots()
     if (!connection_.connect(service, object, iface,
                              "taskActivated",
                              this,
-                             SLOT(onTaskActivated(const QString &))))
+                             SLOT(onTaskActivated(const QStringList &))))
     {
         qDebug("\nCan not connect the taskActivated signal\n");
     }
@@ -2295,7 +2295,7 @@ void SysStatus::onLedSignal(const QByteArray & x, const QByteArray & y)
     emit ledSignal(x, y);
 }
 
-void SysStatus::onTaskActivated(const QString & name)
+void SysStatus::onTaskActivated(const QStringList & name)
 {
     emit taskActivated(name);
 }

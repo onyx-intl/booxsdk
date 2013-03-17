@@ -225,7 +225,7 @@ class SysStatus : public QObject
 
     void userBehaviorSignal(const QByteArray &data);
 
-    void taskActivated(const QString & name);
+    void taskActivated(const QStringList & name);
 
   private slots:
     void onBatteryChanged(int, int);
@@ -273,7 +273,7 @@ class SysStatus : public QObject
     void onMultiTouchHoldDetected(int, int, int, int, int, int, int, int, int, int);
     void onLedSignal(const QByteArray & x, const QByteArray & y);
 
-    void onTaskActivated(const QString & name);
+    void onTaskActivated(const QStringList & name);
 
     void onConfigKeyboard();
 
