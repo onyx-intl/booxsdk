@@ -190,7 +190,8 @@ enum SystemAction
     EXIT_FULL_SCREEN,
     BACKLIGHT_BRIGHTNESS,
     SYSTEM_VOLUME,
-    GLOW_LIGHT_CONTROL
+    GLOW_LIGHT_CONTROL,
+    SHOW_TASK_LIST,
 };
 
 enum AnnotationMode

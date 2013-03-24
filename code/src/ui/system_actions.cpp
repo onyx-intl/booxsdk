@@ -172,6 +172,17 @@ void SystemActions::generateActions(const std::vector<int> & actions)
                 actions_.push_back(glow_light);
                 break;
             }
+        case SHOW_TASK_LIST:
+            {
+                shared_ptr<QAction> task(new QAction(exclusiveGroup()));
+                task->setCheckable(true);
+                task->setFont(actionFont());
+                task->setText(QCoreApplication::tr("Task Management"));
+                task->setIcon(QIcon(QPixmap(":/images/glow_light_switch.png")));
+                task->setData(SHOW_TASK_LIST);
+                actions_.push_back(task);
+                break;
+            }
         }
     }
 }
