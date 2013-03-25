@@ -132,4 +132,34 @@ QString DeviceConfig::setSerialNumberToDatabase(QSqlDatabase &db, const QString 
     return ret;
 }
 
+QString DeviceConfig::wifiHardwareAddrFromDatabase(QSqlDatabase& db)
+{
+    QString ret;
+    QSqlQuery query(db);
+    query.prepare( "select value from device_conf where key = ?");
+    query.addBindValue("hardware_addr");
+    if (query.exec() && query.next())
+    {
+        ret = query.value(0).toString();
+    }
+
+    if (!ret.isEmpty())
+    {
+        return ret;
+    }
+    return ret;
+}
+
+QString DeviceConfig::setWifiHardwareAddrToDatabase(QSqlDatabase &db, const QString &string)
+{
+    QString ret = string;
+    QSqlQuery query(db);
+
+    query.prepare( "INSERT OR REPLACE into device_conf (key, value) values(?, ?)");
+    query.addBindValue("hardware_addr");
+    query.addBindValue(ret);
+    query.exec();
+    return ret;
+}
+
 }

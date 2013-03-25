@@ -603,6 +603,16 @@ bool SystemConfig::saveWifiProfiles(WifiProfiles & all)
     return WifiConfig::save(*database_, all);
 }
 
+QString SystemConfig::wifiHardwareAddress()
+{
+    return DeviceConfig::wifiHardwareAddrFromDatabase(*database_);
+}
+
+QString  SystemConfig::saveWifiHardwareAddr(const QString &wifi_hardware_addr)
+{
+    return DeviceConfig::setWifiHardwareAddrToDatabase(*database_, wifi_hardware_addr);
+}
+
 bool SystemConfig::clearDialupProfiles()
 {
     return DialupConfig::clear(*database_);

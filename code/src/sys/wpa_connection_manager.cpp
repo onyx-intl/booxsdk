@@ -385,6 +385,15 @@ void WpaConnectionManager::scan()
         return;
     }
 
+    sys::SystemConfig conf;
+    QString wifi_mac = this->hardwareAddress();
+    if(!wifi_mac.isEmpty())
+    {
+        conf.saveWifiHardwareAddr(wifi_mac);
+        qDebug() << "wifi hardwareaddr is >>>>>>>>>" << conf.wifiHardwareAddress();
+    }
+    conf.close();
+
     increaseScanRetry();
     bool wpa_ok = checkWpaSupplicant();
     if (wpa_ok)

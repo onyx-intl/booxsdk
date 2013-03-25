@@ -102,6 +102,8 @@ public:
     bool clearWifiProfiles();
     bool loadWifiProfiles(WifiProfiles & all);
     bool saveWifiProfiles(WifiProfiles & all);
+    QString wifiHardwareAddress();
+    QString saveWifiHardwareAddr(const QString &wifi_hardware_addr);
 
     // Dialup configuration.
     bool clearDialupProfiles();
