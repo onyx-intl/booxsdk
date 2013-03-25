@@ -25,6 +25,7 @@
 #include "onyx/data/keys.h"
 #include "onyx/ui/keyboard_config_dialog.h"
 #include "onyx/sys/platform.h"
+#include "task_list_dialog.h"
 
 namespace ui
 {
@@ -477,6 +478,12 @@ void StatusBar::setAppItemState(const int appId, const int state)
             }
         }
     }
+}
+
+void StatusBar::showTaskManagementDialog()
+{
+    TaskListDialog dialog(this, sys::SysStatus::instance());
+    dialog.exec();
 }
 
 void StatusBar::onClockClicked()

@@ -66,6 +66,8 @@ public Q_SLOTS:
     void setAppIcon(const int appId, const QImage & image);
     void setAppItemState(const int appId, const int state);
 
+    void showTaskManagementDialog();
+
 Q_SIGNALS:
     void progressClicked(const int percent, const int value);
     void menuClicked();
