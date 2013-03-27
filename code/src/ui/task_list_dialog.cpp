@@ -70,6 +70,27 @@ void TaskListDialog::keyReleaseEvent(QKeyEvent *ke)
     }
 }
 
+void TaskListDialog::updateAll()
+{
+    selected_ = -1;
+    all_ = sys::SysStatus::instance().allTasks();
+    qDebug() << "all" << all_;
+    const int countPerTask = 3;
+    ODatas d;
+    for(int i = 0; i < all_.size() / countPerTask; ++i)
+    {
+        OData * item = new OData;
+        item->insert(TAG_TITLE, all_.at(i * countPerTask));
+        item->insert(TAG_SUB_TITLE, all_.at(i * countPerTask) + 1);
+        item->insert(BUTTON_INDEX, i);
+        d.push_back(item);
+    }
+
+    buttons_.setData(d, true);
+    buttons_.setMinimumHeight( (ITEM_HEIGHT+2)*d.size());
+    buttons_.setFixedGrid(d.size(), 1);
+}
+
 void TaskListDialog::createLayout()
 {
     content_widget_.setBackgroundRole(QPalette::Button);
@@ -88,27 +109,14 @@ void TaskListDialog::createLayout()
     buttons_.setMargin(2, 2, 2, 2);
     buttons_.setPreferItemSize(QSize(0, ITEM_HEIGHT));
 
-    QStringList all = sys::SysStatus::instance().allTasks();
-    const int countPerTask = 3;
-    ODatas d;
-    for(int i = 0; i < all.size() / countPerTask; ++i)
-    {
-        OData * item = new OData;
-        item->insert(TAG_TITLE, all.at(i * countPerTask));
-        item->insert(TAG_SUB_TITLE, all.at(i * countPerTask) + 1);
-        item->insert(BUTTON_INDEX, i);
-        d.push_back(item);
-    }
+    updateAll();
 
-    buttons_.setData(d, true);
-    buttons_.setMinimumHeight( (ITEM_HEIGHT+2)*d.size());
-    buttons_.setFixedGrid(d.size(), 1);
+
     buttons_.setSpacing(3);
     QObject::connect(&buttons_, SIGNAL(itemActivated(CatalogView *, ContentView *, int)),
                      this, SLOT(onButtonChanged(CatalogView *, ContentView *, int)), Qt::QueuedConnection);
 
     ver_layout_.addWidget(&buttons_);
-
 
     // OK cancel buttons.
     ok_.setSubItemType(ui::CoverView::type());
@@ -147,10 +155,9 @@ void TaskListDialog::onButtonChanged(CatalogView *catalog, ContentView *item, in
     OData *selected = item->data();
     selected->insert(TAG_CHECKED, true);
 
-
     catalog->update();
     onyx::screen::watcher().enqueue(catalog, onyx::screen::ScreenProxy::GU);
-    int i = interval_selected_->value(TITLE_INDEX).toInt();
+    int i = selected->value(BUTTON_INDEX).toInt();
 
     onOkClicked();
 }
