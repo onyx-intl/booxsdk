@@ -2074,7 +2074,7 @@ QStringList SysStatus::allTasks()
     QStringList result;
     foreach (QVariant v,  reply.arguments())
     {
-        result.append(v.toString());
+        result.append(v.toStringList());
     }
     return result;
 }
