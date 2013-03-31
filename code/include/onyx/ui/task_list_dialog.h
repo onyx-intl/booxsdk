@@ -31,6 +31,7 @@ private:
 private Q_SLOTS:
     void onButtonChanged(CatalogView *catalog, ContentView *item, int user_data);
     void onOkClicked();
+    void updateAll();
 
 private:
     SysStatus & status_;
@@ -39,7 +40,8 @@ private:
     OnyxLabel battery_power_;
 
     CatalogView buttons_;
-    OData *interval_selected_;
+    int selected_;
+    QStringList all_;
 
     QHBoxLayout hor_layout_;
     CatalogView ok_;
