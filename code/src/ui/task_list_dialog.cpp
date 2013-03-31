@@ -89,6 +89,7 @@ void TaskListDialog::createLayout()
     buttons_.setPreferItemSize(QSize(0, ITEM_HEIGHT));
 
     QStringList all = sys::SysStatus::instance().allTasks();
+    qDebug() << " all task " << all;
     const int countPerTask = 3;
     ODatas d;
     for(int i = 0; i < all.size() / countPerTask; ++i)
