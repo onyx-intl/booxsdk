@@ -18,6 +18,7 @@ StatusBarItemProgress::StatusBarItemProgress(QWidget *parent)
     , show_message_(true)
     , message_("")
 {
+    initFont();
     createLayout();
 
     timer_.setSingleShot(true);
@@ -72,16 +73,7 @@ void StatusBarItemProgress::drawMessage(QPainter &painter)
     {
         message = message_;
     }
-
-    QFont font;
-    font.setPointSize(17);
-    if(ui::isHD() && sys::isIRTouch())
-    {
-        font.setPointSize(22);
-    }
-    font.setBold(true);
-    setFont(font);
-    QFontMetrics metrics(font);
+    QFontMetrics metrics(font_);
 
     // Jim: add redundace space for displaying full message at x86
     static int REDUNDANCE = 40;
@@ -92,6 +84,17 @@ void StatusBarItemProgress::drawMessage(QPainter &painter)
     painter.setPen(Qt::white);
     painter.drawText(QRect(x, y, text_width, text_height),
             Qt::AlignCenter, message);
+}
+
+void StatusBarItemProgress::initFont()
+{
+    font_.setPointSize(17);
+    if(ui::isHD() && sys::isIRTouch())
+    {
+        font_.setPointSize(22);
+    }
+    font_.setBold(true);
+    setFont(font_);
 }
 
 void StatusBarItemProgress::resizeEvent(QResizeEvent * event)
