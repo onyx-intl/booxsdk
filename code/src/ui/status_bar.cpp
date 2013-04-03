@@ -25,7 +25,7 @@
 #include "onyx/data/keys.h"
 #include "onyx/ui/keyboard_config_dialog.h"
 #include "onyx/sys/platform.h"
-#include "task_list_dialog.h"
+#include "onyx/ui/task_list_dialog.h"
 
 namespace ui
 {
