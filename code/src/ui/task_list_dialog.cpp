@@ -6,7 +6,7 @@
 #include "onyx/screen/screen_update_watcher.h"
 #include "onyx/sys/sys_status.h"
 
-static const int ITEM_HEIGHT = 80;
+static const int ITEM_HEIGHT = 100;
 static const QString TITLE_INDEX = "title_index";
 static const QString BUTTON_INDEX = "button_index";
 
@@ -73,11 +73,12 @@ void TaskListDialog::keyReleaseEvent(QKeyEvent *ke)
 void TaskListDialog::updateAll()
 {
     const int countPerTask = 3;
+    const int max = 5;
     selected_ = -1;
     all_ = sys::SysStatus::instance().allTasks();
     if (all_.size() <= 0)
     {
-        for(int  i = 0; i < 5; ++i)
+        for(int  i = 0; i < max; ++i)
         {
             for(int j = 0; j < countPerTask; ++j)
             {
@@ -87,11 +88,14 @@ void TaskListDialog::updateAll()
     }
     qDebug() << "all" << all_;
     ODatas d;
-    for(int i = 0; i <  all_.size() / countPerTask; ++i)
+    for(int i = 0; i <  all_.size() / countPerTask && i < max; ++i)
     {
+        QString title = all_.at(i * countPerTask);
+        title += "\n";
+        title += all_.at(i * countPerTask + 1);
+
         OData * item = new OData;
-        item->insert(TAG_TITLE, all_.at(i * countPerTask));
-        item->insert(TAG_SUB_TITLE, all_.at(i * countPerTask) + 1);
+        item->insert(TAG_TITLE, title);
         item->insert(BUTTON_INDEX, i);
         d.push_back(item);
     }
