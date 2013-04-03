@@ -76,23 +76,21 @@ void TaskListDialog::updateAll()
     const int max = 5;
     selected_ = -1;
     all_ = sys::SysStatus::instance().allTasks();
-    if (all_.size() <= 0)
+    if (all_.size() < max * countPerTask)
     {
-        for(int  i = 0; i < max; ++i)
+        for(int  i = all_.size(); i < countPerTask * max; ++i)
         {
-            for(int j = 0; j < countPerTask; ++j)
-            {
-                all_.push_back("");
-            }
+            all_.push_back("");
         }
     }
     qDebug() << "all" << all_;
     ODatas d;
-    for(int i = 0; i <  all_.size() / countPerTask && i < max; ++i)
+    for(int i = 0; i <  all_.size() / countPerTask; ++i)
     {
         QString title = all_.at(i * countPerTask);
         title += "\n";
-        title += all_.at(i * countPerTask + 1);
+        QFileInfo info(all_.at(i * countPerTask + 1));
+        title += info.fileName();
 
         OData * item = new OData;
         item->insert(TAG_TITLE, title);
