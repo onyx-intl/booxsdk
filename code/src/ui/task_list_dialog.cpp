@@ -72,12 +72,22 @@ void TaskListDialog::keyReleaseEvent(QKeyEvent *ke)
 
 void TaskListDialog::updateAll()
 {
+    const int countPerTask = 3;
     selected_ = -1;
     all_ = sys::SysStatus::instance().allTasks();
+    if (all_.size() <= 0)
+    {
+        for(int  i = 0; i < 5; ++i)
+        {
+            for(int j = 0; j < countPerTask; ++j)
+            {
+                all_.push_back("");
+            }
+        }
+    }
     qDebug() << "all" << all_;
-    const int countPerTask = 3;
     ODatas d;
-    for(int i = 0; i < all_.size() / countPerTask; ++i)
+    for(int i = 0; i <  all_.size() / countPerTask; ++i)
     {
         OData * item = new OData;
         item->insert(TAG_TITLE, all_.at(i * countPerTask));
