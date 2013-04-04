@@ -10,6 +10,10 @@ static const int ITEM_HEIGHT = 100;
 static const QString TITLE_INDEX = "title_index";
 static const QString BUTTON_INDEX = "button_index";
 
+const int countPerTask = 3;
+const int max = 5;
+
+
 namespace ui
 {
 
@@ -72,8 +76,6 @@ void TaskListDialog::keyReleaseEvent(QKeyEvent *ke)
 
 void TaskListDialog::updateAll()
 {
-    const int countPerTask = 3;
-    const int max = 5;
     selected_ = -1;
     all_ = sys::SysStatus::instance().allTasks();
     if (all_.size() < max * countPerTask)
@@ -165,6 +167,7 @@ void TaskListDialog::onButtonChanged(CatalogView *catalog, ContentView *item, in
 
     OData *selected = item->data();
     selected->insert(TAG_CHECKED, true);
+    selected_ = selected->value(BUTTON_INDEX).toInt();
 
     catalog->update();
     onyx::screen::watcher().enqueue(catalog, onyx::screen::ScreenProxy::GU);
@@ -186,6 +189,15 @@ bool TaskListDialog::event(QEvent* qe)
 
 void TaskListDialog::onOkClicked()
 {
+    if (selected_ >= 0 && selected_ < all_.size() / countPerTask)
+    {
+        QStringList list;
+        for(int i = 0; i < countPerTask; ++i)
+        {
+            list.push_back(all_.at(selected_ * countPerTask + i));
+        }
+        sys::SysStatus::instance().activateTask(list);
+    }
 
     accept();
     onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GC);
