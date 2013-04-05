@@ -89,9 +89,9 @@ void TaskListDialog::updateAll()
     ODatas d;
     for(int i = 0; i <  all_.size() / countPerTask; ++i)
     {
-        QString title = all_.at(i * countPerTask);
+        QString title = all_.at(i * countPerTask + 1);
         title += "\n";
-        QFileInfo info(all_.at(i * countPerTask + 1));
+        QFileInfo info(all_.at(i * countPerTask));
         title += info.fileName();
 
         OData * item = new OData;
