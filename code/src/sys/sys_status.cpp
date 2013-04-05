@@ -2066,12 +2066,13 @@ QStringList SysStatus::allTasks()
         "allTasks"      // method.
     );
 
+    QStringList result;
     QDBusMessage reply = connection_.call(message);
     if (reply.type() == QDBusMessage::ErrorMessage)
     {
         qWarning("%s", qPrintable(reply.errorMessage()));
+        return result;
     }
-    QStringList result;
     foreach (QVariant v,  reply.arguments())
     {
         result.append(v.toStringList());
