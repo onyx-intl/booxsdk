@@ -189,17 +189,20 @@ bool TaskListDialog::event(QEvent* qe)
 
 void TaskListDialog::onOkClicked()
 {
+
+  if (selected_ >= 0 && selected_ < all_.size() / countPerTask)
+    {
+      QStringList list;
+      for(int i = 0; i < countPerTask; ++i)
+	{
+	  list.push_back(all_.at(selected_ * countPerTask + i));
+	}
+      sys::SysStatus::instance().activateTask(list);
+    }
+
     accept();
     onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GC);
-    if (selected_ >= 0 && selected_ < all_.size() / countPerTask)
-      {
-        QStringList list;
-        for(int i = 0; i < countPerTask; ++i)
-	  {
-            list.push_back(all_.at(selected_ * countPerTask + i));
-	  }
-	sys::SysStatus::instance().activateTask(list);
-      }
+
 }
 
 
