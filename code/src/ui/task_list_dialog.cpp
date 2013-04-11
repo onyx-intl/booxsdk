@@ -18,18 +18,52 @@ static const QString BUTTON_STYLE =    "\
 QPushButton                             \
 {                                       \
     background: transparent;            \
-    font-size: 16px;                    \
+    font-size: 24px;                    \
+    border-width: 1px;                  \
+    border-color: light;          \
+    border-style: solid;                \
+    color: black;                       \
+    padding: 4px;                       \
+    text-align:left;                   \
+}                                       \
+QPushButton:pressed                     \
+{                                       \
+    color: white;                       \
+    border-color: light;                \
+    background-color: black;            \
+}                                       \
+QPushButton:checked                     \
+{                                       \
+    color: white;                       \
+    border-color: light;                \
+    background-color: black;            \
+}                                       \
+QPushButton:disabled                    \
+{                                       \
+    border-color: dark;                 \
+    color: dark;                        \
+    background-color: white;            \
+}";
+
+
+static const QString IMAGE_BUTTON_STYLE =    "\
+QPushButton                             \
+{                                       \
+    background: transparent;            \
+    font-size: 24px;                    \
     border-width: 1px;                  \
     border-color: transparent;          \
     border-style: solid;                \
     color: black;                       \
     padding: 0px;                       \
+    text-align:left;                   \
 }                                       \
 QPushButton:pressed                     \
 {                                       \
     padding-left: 0px;                  \
     padding-top: 0px;                   \
-    border-color: black;                \
+    color: white;                       \
+    border-color: transparent;                \
     background-color: black;            \
 }                                       \
 QPushButton:checked                     \
@@ -37,18 +71,17 @@ QPushButton:checked                     \
     padding-left: 0px;                  \
     padding-top: 0px;                   \
     color: white;                       \
-    border-color: black;                \
+    border-color: transparent;                \
     background-color: black;            \
 }                                       \
 QPushButton:disabled                    \
 {                                       \
     padding-left: 0px;                  \
     padding-top: 0px;                   \
-    border-color: dark;                 \
+    border-color: transparent;                 \
     color: dark;                        \
     background-color: white;            \
 }";
-
 
 namespace ui
 {
@@ -82,13 +115,15 @@ void TaskItem::setTitle(const QString & title)
 
 void TaskItem::createLayout()
 {
-    hor_layout_.setSpacing(5);
+    hor_layout_.setSpacing(10);
     hor_layout_.addWidget(&image_label_);
+
+    title_button_.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     hor_layout_.addWidget(&title_button_);
     hor_layout_.addWidget(&close_button_);
 
     title_button_.setStyleSheet(BUTTON_STYLE);
-    close_button_.setStyleSheet(BUTTON_STYLE);
+    close_button_.setStyleSheet(IMAGE_BUTTON_STYLE);
     QPixmap close_pixmap(":/images/close.png");
     close_button_.setIconSize(close_pixmap.size());
     close_button_.setIcon(QIcon(close_pixmap));
@@ -172,6 +207,13 @@ void TaskListDialog::updateAll()
 {
     selected_ = -1;
     all_ = sys::SysStatus::instance().allTasks();
+    if (all_.size() < max * countPerTask)
+    {
+        for(int  i = all_.size(); i < countPerTask * max; ++i)
+        {
+            all_.push_back("afafdsafd");
+        }
+    }
     qDebug() << "all" << all_;
     buttons_.clear();
 
@@ -186,6 +228,7 @@ void TaskListDialog::updateAll()
         ver_layout_.addWidget(item);
         item->setImage(":/images/bookmark_flag.png");
         item->setTitle(title);
+        item->setIndex(i);
         buttons_.push_back(item);
         connect(item, SIGNAL(itemClicked(int)), this, SLOT(onItemClicked(int)));
         connect(item, SIGNAL(itemClosed(int)), this, SLOT(onItemClosed(int)));
