@@ -207,13 +207,6 @@ void TaskListDialog::updateAll()
 {
     selected_ = -1;
     all_ = sys::SysStatus::instance().allTasks();
-    if (all_.size() < max * countPerTask)
-    {
-        for(int  i = all_.size(); i < countPerTask * max; ++i)
-        {
-            all_.push_back("afafdsafd");
-        }
-    }
     qDebug() << "all" << all_;
     buttons_.clear();
 
