@@ -14,15 +14,92 @@ const int countPerTask = 3;
 const int max = 5;
 
 
+static const QString BUTTON_STYLE =    "\
+QPushButton                             \
+{                                       \
+    background: transparent;            \
+    font-size: 14px;                    \
+    border-width: 1px;                  \
+    border-color: transparent;          \
+    border-style: solid;                \
+    color: black;                       \
+    padding: 0px;                       \
+}                                       \
+QPushButton:pressed                     \
+{                                       \
+    padding-left: 0px;                  \
+    padding-top: 0px;                   \
+    border-color: black;                \
+    background-color: black;            \
+}                                       \
+QPushButton:checked                     \
+{                                       \
+    padding-left: 0px;                  \
+    padding-top: 0px;                   \
+    color: white;                       \
+    border-color: black;                \
+    background-color: black;            \
+}                                       \
+QPushButton:disabled                    \
+{                                       \
+    padding-left: 0px;                  \
+    padding-top: 0px;                   \
+    border-color: dark;                 \
+    color: dark;                        \
+    background-color: white;            \
+}";
+
+
 namespace ui
 {
+
+
+TaskItem::TaskItem(QWidget *parent)
+    : QWidget(parent)
+    , hor_layout_(this)
+    , image_label_(0)
+    , title_label_(0)
+    , close_button_("" , 0)
+{
+    createLayout();
+}
+
+TaskItem::~TaskItem(void)
+{
+}
+
+void TaskItem::setImage(const QString & path)
+{
+    QPixmap pixmap(path);
+    image_label_.setPixmap(pixmap);
+}
+
+void TaskItem::setTitle(const QString & title)
+{
+    title_label_.setText(title);
+}
+
+void TaskItem::createLayout()
+{
+    hor_layout_.addWidget(&image_label_);
+    hor_layout_.addWidget(&title_label_);
+    hor_layout_.addWidget(&close_button_);
+
+    close_button_.setStyleSheet(BUTTON_STYLE);
+    QPixmap close_pixmap(":/images/close.png");
+    close_button_.setIconSize(close_pixmap.size());
+    close_button_.setIcon(QIcon(close_pixmap));
+    close_button_.setFocusPolicy(Qt::NoFocus);
+    connect(&close_button_, SIGNAL(clicked()), this, SLOT(onCloseClicked()), Qt::QueuedConnection);
+    connect(&close_button_, SIGNAL(pressed()), this, SLOT(onClosePressed()), Qt::QueuedConnection);
+}
+
 
 TaskListDialog::TaskListDialog(QWidget *parent, SysStatus & ref)
     : OnyxDialog(parent)
     , status_(ref)
     , ver_layout_(&content_widget_)
     , battery_power_(0)
-    , hor_layout_(0)
 {
     setModal(true);
     resize(500, 500);
@@ -78,15 +155,9 @@ void TaskListDialog::updateAll()
 {
     selected_ = -1;
     all_ = sys::SysStatus::instance().allTasks();
-    if (all_.size() < max * countPerTask)
-    {
-        for(int  i = all_.size(); i < countPerTask * max; ++i)
-        {
-            all_.push_back("");
-        }
-    }
     qDebug() << "all" << all_;
-    ODatas d;
+    buttons_.clear();
+
     for(int i = 0; i <  all_.size() / countPerTask; ++i)
     {
         QString title = all_.at(i * countPerTask + 1);
@@ -94,15 +165,12 @@ void TaskListDialog::updateAll()
         QFileInfo info(all_.at(i * countPerTask));
         title += info.fileName();
 
-        OData * item = new OData;
-        item->insert(TAG_TITLE, title);
-        item->insert(BUTTON_INDEX, i);
-        d.push_back(item);
+        TaskItem * item = new TaskItem(this);
+        ver_layout_.addWidget(item);
+        item->setImage(":/images/list_view.png");
+        item->setTitle(title);
+        buttons_.push_back(item);
     }
-
-    buttons_.setData(d, true);
-    buttons_.setMinimumHeight( (ITEM_HEIGHT+2)*d.size());
-    buttons_.setFixedGrid(d.size(), 1);
 }
 
 void TaskListDialog::createLayout()
@@ -119,42 +187,8 @@ void TaskListDialog::createLayout()
 
 
     // Create display items
-    buttons_.setSubItemType(CheckBoxView::type());
-    buttons_.setMargin(2, 2, 2, 2);
-    buttons_.setPreferItemSize(QSize(0, ITEM_HEIGHT));
-
     updateAll();
-
-    buttons_.setSpacing(3);
-    QObject::connect(&buttons_, SIGNAL(itemActivated(CatalogView *, ContentView *, int)),
-                     this, SLOT(onButtonChanged(CatalogView *, ContentView *, int)), Qt::QueuedConnection);
-
-    ver_layout_.addWidget(&buttons_);
-
-    // OK cancel buttons.
-    ok_.setSubItemType(ui::CoverView::type());
-    ok_.setPreferItemSize(QSize(100, 60));
-    ODatas d2;
-
-    OData * item = new OData;
-    item->insert(TAG_TITLE, tr("OK"));
-    item->insert(TITLE_INDEX, 1);
-    d2.push_back(item);
-
-
-    ok_.setData(d2, true);
-    ok_.setMinimumHeight( 60 );
-    ok_.setMinimumWidth(100);
-    ok_.setFocusPolicy(Qt::TabFocus);
-    ok_.setNeighbor(&buttons_, CatalogView::UP);
-    connect(&ok_, SIGNAL(itemActivated(CatalogView *, ContentView *, int)), this, SLOT(onOkClicked()));
-
-    hor_layout_.addStretch(0);
-    hor_layout_.addWidget(&ok_);
-
-
     ver_layout_.addStretch(0);
-    ver_layout_.addLayout(&hor_layout_);
     ver_layout_.addSpacing(8);
 }
 
@@ -190,14 +224,14 @@ bool TaskListDialog::event(QEvent* qe)
 void TaskListDialog::onOkClicked()
 {
 
-  if (selected_ >= 0 && selected_ < all_.size() / countPerTask)
+    if (selected_ >= 0 && selected_ < all_.size() / countPerTask)
     {
-      QStringList list;
-      for(int i = 0; i < countPerTask; ++i)
-	{
-	  list.push_back(all_.at(selected_ * countPerTask + i));
-	}
-      sys::SysStatus::instance().activateTask(list);
+        QStringList list;
+        for(int i = 0; i < countPerTask; ++i)
+        {
+            list.push_back(all_.at(selected_ * countPerTask + i));
+        }
+        sys::SysStatus::instance().activateTask(list);
     }
 
     accept();
