@@ -160,8 +160,9 @@ class SysStatus : public QObject
 
     void addTaskRecord(const QStringList & strings);
     void removeTaskRecord(const QStringList & strings);
-    void activateTask(const QStringList & strings);
     void removeAllTaskRecords();
+    void closeTask(const QStringList & strings);
+    void activateTask(const QStringList & strings);
     QStringList allTasks();
 
     // The following signals must be the same with system manager.
@@ -226,6 +227,7 @@ class SysStatus : public QObject
     void userBehaviorSignal(const QByteArray &data);
 
     void taskActivated(const QStringList & name);
+    void taskCloseRequest(const QStringList & name);
 
   private slots:
     void onBatteryChanged(int, int);
@@ -274,6 +276,7 @@ class SysStatus : public QObject
     void onLedSignal(const QByteArray & x, const QByteArray & y);
 
     void onTaskActivated(const QStringList & name);
+    void onReceivedTaskCloseRequest(const QStringList & strings);
 
     void onConfigKeyboard();
 

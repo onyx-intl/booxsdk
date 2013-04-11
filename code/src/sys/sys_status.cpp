@@ -461,6 +461,14 @@ void SysStatus::installSlots()
     }
 
     if (!connection_.connect(service, object, iface,
+                             "taskCloseRequest",
+                             this,
+                             SLOT(onReceivedTaskCloseRequest(const QStringList &))))
+    {
+        qDebug("\nCan not connect the taskCloseRequest signal\n");
+    }
+
+    if (!connection_.connect(service, object, iface,
                              "configKeyboard",
                              this,
                              SLOT(onConfigKeyboard())))
@@ -2057,6 +2065,23 @@ void SysStatus::activateTask(const QStringList & name)
     }
 }
 
+void SysStatus::closeTask(const QStringList & strings)
+{
+    QDBusMessage message = QDBusMessage::createMethodCall(
+        service,            // destination
+        object,             // path
+        iface,              // interface
+        "closeTask"      // method.
+    );
+
+    message << strings;
+    QDBusMessage reply = connection_.call(message);
+    if (reply.type() == QDBusMessage::ErrorMessage)
+    {
+        qWarning("%s", qPrintable(reply.errorMessage()));
+    }
+}
+
 QStringList SysStatus::allTasks()
 {
     QDBusMessage message = QDBusMessage::createMethodCall(
@@ -2299,6 +2324,11 @@ void SysStatus::onLedSignal(const QByteArray & x, const QByteArray & y)
 void SysStatus::onTaskActivated(const QStringList & name)
 {
     emit taskActivated(name);
+}
+
+void SysStatus::onReceivedTaskCloseRequest(const QStringList & name)
+{
+    emit taskCloseRequest(name);
 }
 
 void SysStatus::onConfigKeyboard()
