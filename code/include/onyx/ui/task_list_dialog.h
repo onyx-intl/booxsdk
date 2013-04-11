@@ -19,8 +19,13 @@ public:
     ~TaskItem(void);
 
 Q_SIGNALS:
-    void itemClicked();
-    void itemClosed();
+    void itemClicked(int index);
+    void itemClosed(int index);
+
+public Q_SLOTS:
+    void setIndex(int index);
+    void onTitleClicked();
+    void onCloseClicked();
 
 public:
     void setImage(const QString & path);
@@ -32,8 +37,9 @@ private:
 private:
     QHBoxLayout hor_layout_;
     OnyxLabel image_label_;
-    OnyxLabel title_label_;
+    OnyxPushButton title_button_;
     OnyxPushButton close_button_;
+    int index_;
 };
 
 /// Locale widget. Not sure we should place it in the ui library.
@@ -56,7 +62,8 @@ private:
     bool event(QEvent*);
 
 private Q_SLOTS:
-    void onButtonChanged(CatalogView *catalog, ContentView *item, int user_data);
+    void onItemClicked(int);
+    void onItemClosed(int);
     void onOkClicked();
     void updateAll();
 

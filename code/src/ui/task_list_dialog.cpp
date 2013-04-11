@@ -58,8 +58,9 @@ TaskItem::TaskItem(QWidget *parent)
     : QWidget(parent)
     , hor_layout_(this)
     , image_label_(0)
-    , title_label_(0)
+    , title_button_("", 0)
     , close_button_("" , 0)
+    , index_(-1)
 {
     createLayout();
 }
@@ -76,24 +77,39 @@ void TaskItem::setImage(const QString & path)
 
 void TaskItem::setTitle(const QString & title)
 {
-    title_label_.setText(title);
+    title_button_.setText(title);
 }
 
 void TaskItem::createLayout()
 {
     hor_layout_.addWidget(&image_label_);
-    hor_layout_.addWidget(&title_label_);
+    hor_layout_.addWidget(&title_button_);
     hor_layout_.addWidget(&close_button_);
 
+    title_button_.setStyleSheet(BUTTON_STYLE);
     close_button_.setStyleSheet(BUTTON_STYLE);
     QPixmap close_pixmap(":/images/close.png");
     close_button_.setIconSize(close_pixmap.size());
     close_button_.setIcon(QIcon(close_pixmap));
     close_button_.setFocusPolicy(Qt::NoFocus);
     connect(&close_button_, SIGNAL(clicked()), this, SLOT(onCloseClicked()), Qt::QueuedConnection);
-    connect(&close_button_, SIGNAL(pressed()), this, SLOT(onClosePressed()), Qt::QueuedConnection);
+    connect(&title_button_, SIGNAL(clicked()), this, SLOT(onTitleClicked()), Qt::QueuedConnection);
 }
 
+void TaskItem::setIndex(int index)
+{
+    index_ = index;
+}
+
+void TaskItem::onTitleClicked()
+{
+    emit itemClicked(index_);
+}
+
+void TaskItem::onCloseClicked()
+{
+    emit itemClosed(index_);
+}
 
 TaskListDialog::TaskListDialog(QWidget *parent, SysStatus & ref)
     : OnyxDialog(parent)
@@ -170,6 +186,8 @@ void TaskListDialog::updateAll()
         item->setImage(":/images/list_view.png");
         item->setTitle(title);
         buttons_.push_back(item);
+        connect(item, SIGNAL(itemClicked(int)), this, SLOT(onItemClicked(int)));
+        connect(item, SIGNAL(itemClosed(int)), this, SLOT(onItemClosed(int)));
     }
 }
 
@@ -192,24 +210,6 @@ void TaskListDialog::createLayout()
     ver_layout_.addSpacing(8);
 }
 
-void TaskListDialog::onButtonChanged(CatalogView *catalog, ContentView *item, int user_data)
-{
-    if (!item || !item->data())
-    {
-        return;
-    }
-
-    OData *selected = item->data();
-    selected->insert(TAG_CHECKED, true);
-    selected_ = selected->value(BUTTON_INDEX).toInt();
-
-    catalog->update();
-    onyx::screen::watcher().enqueue(catalog, onyx::screen::ScreenProxy::GU);
-    int i = selected->value(BUTTON_INDEX).toInt();
-
-    onOkClicked();
-}
-
 bool TaskListDialog::event(QEvent* qe)
 {
     bool ret = QDialog::event(qe);
@@ -221,9 +221,16 @@ bool TaskListDialog::event(QEvent* qe)
     return ret;
 }
 
+void TaskListDialog::onItemClicked(int)
+{
+}
+
+void TaskListDialog::onItemClosed(int)
+{
+}
+
 void TaskListDialog::onOkClicked()
 {
-
     if (selected_ >= 0 && selected_ < all_.size() / countPerTask)
     {
         QStringList list;
