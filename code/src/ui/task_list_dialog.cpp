@@ -18,7 +18,7 @@ static const QString BUTTON_STYLE =    "\
 QPushButton                             \
 {                                       \
     background: transparent;            \
-    font-size: 14px;                    \
+    font-size: 16px;                    \
     border-width: 1px;                  \
     border-color: transparent;          \
     border-style: solid;                \
@@ -82,6 +82,7 @@ void TaskItem::setTitle(const QString & title)
 
 void TaskItem::createLayout()
 {
+    hor_layout_.setSpacing(5);
     hor_layout_.addWidget(&image_label_);
     hor_layout_.addWidget(&title_button_);
     hor_layout_.addWidget(&close_button_);
@@ -183,7 +184,7 @@ void TaskListDialog::updateAll()
 
         TaskItem * item = new TaskItem(this);
         ver_layout_.addWidget(item);
-        item->setImage(":/images/list_view.png");
+        item->setImage(":/images/bookmark_flag.png");
         item->setTitle(title);
         buttons_.push_back(item);
         connect(item, SIGNAL(itemClicked(int)), this, SLOT(onItemClicked(int)));
@@ -221,26 +222,36 @@ bool TaskListDialog::event(QEvent* qe)
     return ret;
 }
 
-void TaskListDialog::onItemClicked(int)
+void TaskListDialog::onItemClicked(int index)
 {
-}
-
-void TaskListDialog::onItemClosed(int)
-{
-}
-
-void TaskListDialog::onOkClicked()
-{
-    if (selected_ >= 0 && selected_ < all_.size() / countPerTask)
+    if (index >= 0 && index < all_.size() / countPerTask)
     {
         QStringList list;
         for(int i = 0; i < countPerTask; ++i)
         {
-            list.push_back(all_.at(selected_ * countPerTask + i));
+            list.push_back(all_.at(index * countPerTask + i));
         }
         sys::SysStatus::instance().activateTask(list);
     }
+    onOkClicked();
+}
 
+void TaskListDialog::onItemClosed(int index)
+{
+    if (index >= 0 && index < all_.size() / countPerTask)
+    {
+        QStringList list;
+        for(int i = 0; i < countPerTask; ++i)
+        {
+            list.push_back(all_.at(index * countPerTask + i));
+        }
+        sys::SysStatus::instance().closeTask(list);
+    }
+    onOkClicked();
+}
+
+void TaskListDialog::onOkClicked()
+{
     accept();
     onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GC);
 
