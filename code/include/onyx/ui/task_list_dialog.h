@@ -26,6 +26,7 @@ public Q_SLOTS:
     void setIndex(int index);
     void onTitleClicked();
     void onCloseClicked();
+    void showCloseButton(bool show);
 
 public:
     void setImage(const QString & path);

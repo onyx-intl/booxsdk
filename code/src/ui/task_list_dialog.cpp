@@ -147,6 +147,11 @@ void TaskItem::onCloseClicked()
     emit itemClosed(index_);
 }
 
+void TaskItem::showCloseButton(bool show)
+{
+    close_button_.setVisible(show);
+}
+
 TaskListDialog::TaskListDialog(QWidget *parent, SysStatus & ref)
     : OnyxDialog(parent)
     , status_(ref)
