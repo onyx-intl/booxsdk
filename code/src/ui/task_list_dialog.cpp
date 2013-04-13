@@ -213,8 +213,11 @@ void TaskListDialog::updateAll()
     selected_ = -1;
     all_ = sys::SysStatus::instance().allTasks();
     qDebug() << "all" << all_;
+    foreach(TaskItem * item, buttons_)
+    {
+        ver_layout_.removeWidget(item);
+    }
     buttons_.clear();
-
     for(int i = 0; i <  all_.size() / countPerTask; ++i)
     {
         QString title;
