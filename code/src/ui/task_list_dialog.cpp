@@ -10,7 +10,7 @@ static const int ITEM_HEIGHT = 100;
 static const QString TITLE_INDEX = "title_index";
 static const QString BUTTON_INDEX = "button_index";
 
-const int countPerTask = 3;
+const int countPerTask = 4;
 const int max = 5;
 
 
@@ -152,6 +152,11 @@ void TaskItem::showCloseButton(bool show)
     close_button_.setVisible(show);
 }
 
+void TaskItem::setSelected(bool selected)
+{
+    title_button_.setChecked(selected);
+}
+
 TaskListDialog::TaskListDialog(QWidget *parent, SysStatus & ref)
     : OnyxDialog(parent)
     , status_(ref)
@@ -168,8 +173,9 @@ TaskListDialog::~TaskListDialog(void)
 {
 }
 
-int TaskListDialog::exec()
+int TaskListDialog::exec(const QString &app)
 {
+    app_name_ = app;
     shadows_.show(true);
     show();
     onyx::screen::instance().flush();
@@ -231,6 +237,12 @@ void TaskListDialog::updateAll()
         item->setImage(":/images/bookmark_flag.png");
         item->setTitle(title);
         item->setIndex(i);
+
+        if (all_.at(i * countPerTask + 2) == app_name_)
+        {
+            item->setSelected(true);
+        }
+
         buttons_.push_back(item);
         connect(item, SIGNAL(itemClicked(int)), this, SLOT(onItemClicked(int)), Qt::QueuedConnection);
         connect(item, SIGNAL(itemClosed(int)), this, SLOT(onItemClosed(int)), Qt::QueuedConnection);

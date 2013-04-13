@@ -480,10 +480,10 @@ void StatusBar::setAppItemState(const int appId, const int state)
     }
 }
 
-void StatusBar::showTaskManagementDialog()
+void StatusBar::showTaskManagementDialog(const QString &appName)
 {
     TaskListDialog dialog(this, sys::SysStatus::instance());
-    dialog.exec();
+    dialog.exec(appName);
 }
 
 void StatusBar::onClockClicked()

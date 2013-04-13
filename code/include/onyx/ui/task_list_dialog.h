@@ -27,6 +27,7 @@ public Q_SLOTS:
     void onTitleClicked();
     void onCloseClicked();
     void showCloseButton(bool show);
+    void setSelected(bool selected = true);
 
 public:
     void setImage(const QString & path);
@@ -54,7 +55,7 @@ public:
     ~TaskListDialog(void);
 
 public:
-    int exec();
+    int exec(const QString &appname);
 
 private:
     void createLayout();
@@ -77,7 +78,7 @@ private:
     QVector<TaskItem *> buttons_;
     int selected_;
     QStringList all_;
-
+    QString app_name_;
 };
 
 }   // namespace ui
