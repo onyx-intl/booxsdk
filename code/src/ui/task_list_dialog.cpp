@@ -217,10 +217,11 @@ void TaskListDialog::updateAll()
 
     for(int i = 0; i <  all_.size() / countPerTask; ++i)
     {
-        QString title = all_.at(i * countPerTask + 1);
-        title += "\n";
+        QString title;
         QFileInfo info(all_.at(i * countPerTask));
         title += info.fileName();
+        title += "\n";
+        title += all_.at(i * countPerTask + 1);
 
         TaskItem * item = new TaskItem(this);
         ver_layout_.addWidget(item);
