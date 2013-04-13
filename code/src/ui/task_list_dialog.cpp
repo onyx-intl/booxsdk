@@ -229,8 +229,8 @@ void TaskListDialog::updateAll()
         item->setTitle(title);
         item->setIndex(i);
         buttons_.push_back(item);
-        connect(item, SIGNAL(itemClicked(int)), this, SLOT(onItemClicked(int)));
-        connect(item, SIGNAL(itemClosed(int)), this, SLOT(onItemClosed(int)));
+        connect(item, SIGNAL(itemClicked(int)), this, SLOT(onItemClicked(int)), Qt::QueuedConnection);
+        connect(item, SIGNAL(itemClosed(int)), this, SLOT(onItemClosed(int)), Qt::QueuedConnection);
     }
 }
 
@@ -289,7 +289,7 @@ void TaskListDialog::onItemClosed(int index)
         }
         sys::SysStatus::instance().closeTask(list);
     }
-    onOkClicked();
+    updateAll();
 }
 
 void TaskListDialog::onOkClicked()
