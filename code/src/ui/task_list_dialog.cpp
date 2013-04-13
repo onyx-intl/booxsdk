@@ -292,7 +292,7 @@ void TaskListDialog::onItemClosed(int index)
         }
         sys::SysStatus::instance().closeTask(list);
     }
-    updateAll();
+    onOkClicked();
 }
 
 void TaskListDialog::onOkClicked()
