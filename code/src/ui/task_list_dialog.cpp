@@ -122,6 +122,7 @@ void TaskItem::createLayout()
     hor_layout_.addWidget(&title_button_);
     hor_layout_.addWidget(&close_button_);
 
+    title_button_.setCheckable(true);
     title_button_.setStyleSheet(BUTTON_STYLE);
     close_button_.setStyleSheet(IMAGE_BUTTON_STYLE);
     QPixmap close_pixmap(":/images/close.png");
