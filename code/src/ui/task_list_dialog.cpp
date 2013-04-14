@@ -240,7 +240,7 @@ void TaskListDialog::updateAll()
         item->setTitle(title);
         item->setIndex(i);
 
-        if (all_.at(i * countPerTask + 2) == current)
+        if (current.contains(all_.at(i * countPerTask + 2)))
         {
             item->setSelected(true);
         }
