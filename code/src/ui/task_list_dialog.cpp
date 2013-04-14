@@ -219,6 +219,7 @@ void TaskListDialog::updateAll()
 {
     selected_ = -1;
     all_ = sys::SysStatus::instance().allTasks();
+    QStringList current = sys::SysStatus::instance().currentActivateTask();
     qDebug() << "all" << all_;
     foreach(TaskItem * item, buttons_)
     {
@@ -239,7 +240,7 @@ void TaskListDialog::updateAll()
         item->setTitle(title);
         item->setIndex(i);
 
-        if (all_.at(i * countPerTask + 2) == app_name_)
+        if (all_.at(i * countPerTask + 2) == current)
         {
             item->setSelected(true);
         }
