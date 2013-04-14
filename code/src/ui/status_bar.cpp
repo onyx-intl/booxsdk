@@ -121,7 +121,7 @@ void StatusBar::addItems(StatusBarItemTypes items)
     // Adjust the order if necessary.
     const StatusBarItemType all[] =
     {
-        MENU, SCREEN_REFRESH, PROGRESS, MESSAGE, STYLUS, INPUT_TEXT, VOLUME, INPUT_URL,THREEG_CONNECTION,
+        MENU, TASK_MANAGEMENT, SCREEN_REFRESH, PROGRESS, MESSAGE, STYLUS, INPUT_TEXT, VOLUME, INPUT_URL,THREEG_CONNECTION,
         CONNECTION, VIEWPORT, MUSIC_PLAYER, APP_DEFINED, APP_CONFIG, CLOCK, BATTERY
     };
     const int size = sizeof(all)/sizeof(all[0]);
@@ -882,6 +882,11 @@ void StatusBar::createLayout()
     setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Minimum);
 }
 
+void StatusBar::showTaskManagementDialogInternal()
+{
+    showTaskManagementDialog("");
+}
+
 StatusBarItem *StatusBar::item(const StatusBarItemType type, bool create)
 {
     for(StatusBarIter iter = widgets_.begin(); iter != widgets_.end(); ++iter)
@@ -904,6 +909,14 @@ StatusBarItem *StatusBar::item(const StatusBarItemType type, bool create)
     case MENU:
         item = new StatusBarItemMenu(this);
         connect(item, SIGNAL(clicked()), this, SLOT(onMenuClicked()));
+        break;
+    case TASK_MANAGEMENT:
+        {
+            item = new StatusBarItemMenu(this);
+            StatusBarItemMenu * task = (StatusBarItemMenu*)item;
+            task->setImage(":/images/app_column_tool.png");
+            connect(task, SIGNAL(clicked()), this, SLOT(showTaskManagementDialogInternal()));
+        }
         break;
     case BATTERY:
         item = new StatusBarItemBattery(this);
@@ -996,6 +1009,10 @@ StatusBarItem *StatusBar::item(const StatusBarItemType type, bool create)
     else if (type == SCREEN_REFRESH)
     {
         addWidget(ptr.get(), 0);
+    }
+    else if (type == TASK_MANAGEMENT)
+    {
+           addWidget(ptr.get(), 1);
     }
     else if (type == MENU &&
              sys::isIRTouch())

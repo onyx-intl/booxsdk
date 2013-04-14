@@ -20,6 +20,11 @@ void StatusBarItemMenu::createLayout()
     setFixedWidth(menu_icon_->width() + 4);
 }
 
+void StatusBarItemMenu::setImage(const QString &path)
+{
+    menu_icon_.reset(new QImage(getIconPath(path)));
+}
+
 void StatusBarItemMenu::paintEvent(QPaintEvent *pe)
 {
     QPainter p(this);

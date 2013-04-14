@@ -17,6 +17,9 @@ public:
 Q_SIGNALS:
     void clicked();
 
+public Q_SLOTS:
+    void setImage(const QString &path);
+
 private:
     virtual void paintEvent(QPaintEvent *);
     virtual void mousePressEvent(QMouseEvent *);

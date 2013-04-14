@@ -27,7 +27,7 @@ class StatusBar : public QStatusBar
 {
     Q_OBJECT
 public:
-    StatusBar(QWidget *parent, StatusBarItemTypes items = MENU|PROGRESS|MESSAGE|BATTERY|MUSIC_PLAYER);
+    StatusBar(QWidget *parent, StatusBarItemTypes items = MENU|TASK_MANAGEMENT|PROGRESS|MESSAGE|BATTERY|MUSIC_PLAYER);
     ~StatusBar(void);
 
 public:
@@ -100,6 +100,7 @@ private Q_SLOTS:
     void onHideVolumeDialog();
     void onConfigKeyboard();
     void autoSelect();
+    void showTaskManagementDialogInternal();
 
 private:
     virtual void mouseMoveEvent(QMouseEvent *me);
