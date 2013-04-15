@@ -178,7 +178,7 @@ void SystemActions::generateActions(const std::vector<int> & actions)
                 task->setCheckable(true);
                 task->setFont(actionFont());
                 task->setText(QCoreApplication::tr("Task Management"));
-                task->setIcon(QIcon(QPixmap(":/images/glow_light_switch.png")));
+                task->setIcon(QIcon(QPixmap(":/images/bookmark.png")));
                 task->setData(SHOW_TASK_LIST);
                 actions_.push_back(task);
                 break;
