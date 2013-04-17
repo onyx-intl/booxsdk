@@ -245,6 +245,11 @@ void TaskListDialog::updateAll()
             item->setSelected(true);
         }
 
+        if (current.contains("gui_shell") && current.contains("Explorer"))
+        {
+            item->showCloseButton(false);
+        }
+
         buttons_.push_back(item);
         connect(item, SIGNAL(itemClicked(int)), this, SLOT(onItemClicked(int)), Qt::QueuedConnection);
         connect(item, SIGNAL(itemClosed(int)), this, SLOT(onItemClosed(int)), Qt::QueuedConnection);
