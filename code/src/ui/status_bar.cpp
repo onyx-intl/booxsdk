@@ -914,7 +914,7 @@ StatusBarItem *StatusBar::item(const StatusBarItemType type, bool create)
         {
             item = new StatusBarItemMenu(this);
             StatusBarItemMenu * task = (StatusBarItemMenu*)item;
-            task->setImage(":/images/bookmark_flag.png");
+            task->setImage(":/images/task_management.png");
             connect(task, SIGNAL(clicked()), this, SLOT(showTaskManagementDialogInternal()));
         }
         break;

@@ -270,6 +270,7 @@
 
     <file>images/adjust_position.png</file>
     <file>images/hyphenation.png</file>
+    <file>images/task_management.png</file>
 
   </qresource>
 </RCC>
