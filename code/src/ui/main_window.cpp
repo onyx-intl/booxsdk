@@ -20,7 +20,7 @@ MainWindow::MainWindow(QObject *parent)
     , hlayout_(0)
     , status_bar_(this,
                   (SysStatus::instance().hasTouchScreen() ? 
-                  (MENU | PROGRESS | MESSAGE | STYLUS | BATTERY | MUSIC_PLAYER | CLOCK | VOLUME | SCREEN_REFRESH) :
+                  (MENU | TASK_MANAGEMENT | PROGRESS | MESSAGE | STYLUS | BATTERY | MUSIC_PLAYER | CLOCK | VOLUME | SCREEN_REFRESH) :
                   (MENU | PROGRESS | MESSAGE | CLOCK | BATTERY)))
 {
     setAutoFillBackground(true);
@@ -101,6 +101,11 @@ void MainWindow::attachModel(BaseModel* model)
 void MainWindow::setContentMargins(int left, int top, int right, int bottom)
 {
     hlayout_.setContentsMargins(left, top, right, bottom);
+}
+
+StatusBar * MainWindow::getStatusBar()
+{
+    return &status_bar_;
 }
 
 QWidget* MainWindow::getView(int type)

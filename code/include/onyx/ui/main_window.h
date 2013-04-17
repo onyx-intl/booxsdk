@@ -30,6 +30,8 @@ public:
     void clearViews();
     void setContentMargins(int left, int top, int right, int bottom);
 
+    StatusBar * getStatusBar();
+
 public Q_SLOTS:
     // handle events from view
     void handlePositionChanged(const int, const int);
