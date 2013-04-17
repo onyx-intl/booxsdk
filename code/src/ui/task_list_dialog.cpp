@@ -226,7 +226,8 @@ void TaskListDialog::updateAll()
         ver_layout_.removeWidget(item);
     }
     buttons_.clear();
-    for(int i = 0; i <  all_.size() / countPerTask; ++i)
+    int total = all_.size() / countPerTask;
+    for(int i = 0; i <  total; ++i)
     {
         QString title;
         QFileInfo info(all_.at(i * countPerTask));
@@ -245,7 +246,8 @@ void TaskListDialog::updateAll()
             item->setSelected(true);
         }
 
-        if (current.contains("gui_shell") && current.contains("Explorer"))
+
+        if (i == total - 1)
         {
             item->showCloseButton(false);
         }
