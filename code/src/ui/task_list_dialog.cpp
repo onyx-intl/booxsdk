@@ -229,11 +229,14 @@ void TaskListDialog::updateAll()
     int total = all_.size() / countPerTask;
     for(int i = 0; i <  total; ++i)
     {
+        QString path = all_.at(i * countPerTask);
+        QString displayName = all_.at(i * countPerTask + 1);
+        QString appName = all_.at(i * countPerTask + 2);
         QString title;
-        QFileInfo info(all_.at(i * countPerTask));
+        QFileInfo info(path);
         title += info.fileName();
         title += "\n";
-        title += all_.at(i * countPerTask + 1);
+        title += displayName;
 
         TaskItem * item = new TaskItem(this);
         ver_layout_.addWidget(item);
@@ -241,13 +244,13 @@ void TaskListDialog::updateAll()
         item->setTitle(title);
         item->setIndex(i);
 
-        if (current.contains(all_.at(i * countPerTask)))
+        if (current.contains(path))
         {
             item->setSelected(true);
         }
 
-
-        if (i == total - 1)
+        if (path.contains("Explorer") &&
+            appName.contains("gui_shell"))
         {
             item->showCloseButton(false);
         }
