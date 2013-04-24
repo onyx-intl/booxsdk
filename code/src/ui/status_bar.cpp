@@ -570,6 +570,7 @@ void StatusBar::onVolumeClicked()
 {
     VolumeControlDialog * dialog = volumeDialog(true);
     dialog->ensureVisible();
+    onyx::screen::instance().updateWidget(0, onyx::screen::ScreenProxy::A2, false, onyx::screen::ScreenCommand::WAIT_COMMAND_FINISH);
 }
 
 void StatusBar::onScreenRefreshClicked()
