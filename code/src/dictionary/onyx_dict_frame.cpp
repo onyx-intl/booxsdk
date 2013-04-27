@@ -34,7 +34,7 @@ OnyxDictFrame::OnyxDictFrame(QWidget *parent,
     , dictionary_menu_(0, this)
     , tts_button_view_(0, this)
     , keyboard_(this)
-    , status_bar_(this, MENU | MESSAGE | BATTERY | CLOCK | SCREEN_REFRESH | INPUT_TEXT)
+    , status_bar_(this, MENU | TASK_MANAGEMENT | MESSAGE | BATTERY | CLOCK | SCREEN_REFRESH | INPUT_TEXT)
     , dict_mgr_(dict)
     , tts_engine_(tts)
     , internal_state_(-1)
