@@ -46,6 +46,14 @@ SET(ESPEAK_SRCS
 #SET(SRCS ${EJ_SRCS})
 
 
+# acapela
+include_directories(backend)
+link_directories(${CMAKE_SOURCE_DIR}/lib/tts/acapela/lib)
+
+FILE(GLOB ACAPELA_HDRS acapela/*.h)
+FILE(GLOB ACAPELA_SRCS acapela/*.cpp)
+
+
 # source files.
 
 SET(SRCS ${HDRS} tts.cpp tts_widget.cpp )
