@@ -1,5 +1,5 @@
 
-#include "tts_espeak.h"
+#include "tts_acapela.h"
 
 namespace tts
 {
@@ -8,10 +8,10 @@ static const int CHANNELS = 2;
 static const int FREQ = 44100;
 
 /// Callback function.
-int ESpeakImpl::synthCallback(short *wav, int numsamples, espeak_EVENT *events)
+int AcapelaImpl::synthCallback(short *wav, int numsamples, espeak_EVENT *events)
 {
     char * d = reinterpret_cast<char *>(wav);
-    ESpeakImpl *object = static_cast<ESpeakImpl *>(events->user_data);
+    AcapelaImpl *object = static_cast<AcapelaImpl *>(events->user_data);
     if (object)
     {
         // Convert mono to stereo. The espeak only generates mono data.
@@ -27,35 +27,30 @@ int ESpeakImpl::synthCallback(short *wav, int numsamples, espeak_EVENT *events)
 }
 
 
-ESpeakImpl::ESpeakImpl()
+AcapelaImpl::AcapelaImpl()
 {
     initialized_ = false;
     stop_ = false;
-
-    // Use bs2b library to convert between different sample rate.
-    bs2b_handler_ = bs2b_open();
-    bs2b_set_level(bs2b_handler_, BS2B_DEFAULT_CLEVEL);
-    bs2b_set_srate(bs2b_handler_, FREQ);
 }
 
-ESpeakImpl::~ESpeakImpl()
+
+AcapelaImpl::~AcapelaImpl()
 {
     bs2b_clear(bs2b_handler_);
 
     destroy();
 }
 
-bool ESpeakImpl::initialize(const QLocale & locale, Sound & sound)
+bool AcapelaImpl::initialize(const QLocale & locale, Sound & sound)
 {
     sound.setBitsPerSample(BPS);
     sound.setChannels(CHANNELS);
     sound.setSamplingRate(FREQ);
     sound.setRec();
-
     return create(locale);
 }
 
-ulong ESpeakImpl::process(char *in_data, const ulong size, char **out_data)
+ulong AcapelaImpl::process(char *in_data, const ulong size, char **out_data)
 {
     memcpy(*out_data, in_data, size);
     uint samples = size / (BPS / 8) / 2;
@@ -64,7 +59,7 @@ ulong ESpeakImpl::process(char *in_data, const ulong size, char **out_data)
     return size;
 }
 
-bool ESpeakImpl::synthText(const QString & text)
+bool AcapelaImpl::synthText(const QString & text)
 {
     stop_ = false;
     data_.clear();
@@ -77,7 +72,7 @@ bool ESpeakImpl::synthText(const QString & text)
     return true;
 }
 
-bool ESpeakImpl::create(const QLocale & locale)
+bool AcapelaImpl::create(const QLocale & locale)
 {
     if (initialized_)
     {
@@ -92,40 +87,128 @@ bool ESpeakImpl::create(const QLocale & locale)
     }
 
     qDebug("Resource path %s", qPrintable(dir.absolutePath()));
-    espeak_Initialize(AUDIO_OUTPUT_SYNCHRONOUS, 0, dir.absolutePath().toLocal8Bit().constData(), 0);
+    /* nscCreateServerContext */
+    nscRESULT Result;
+    if ((Result = nscCreateServerContext(NSC_AF_LOCAL,0,"127.0.0.1",&hSrv)) != NSC_OK)
+    {
+        printf("ERROR: nscCreateServerContext return  %d \n",Result);
+        return false;
+    }
 
-    // Basically, we don't need to the following settings now.
-    espeak_SetParameter(espeakRATE, 130, 0);
-    espeak_SetParameter(espeakVOLUME, 100, 0);
-    espeak_SetParameter(espeakPITCH, 50, 0);
-    espeak_SetParameter(espeakRANGE, 50, 0);
-    espeak_SetParameter(espeakCAPITALS, 0,0);
-    espeak_SetParameter(espeakPUNCTUATION, espeakPUNCT_SOME,0);
-    espeak_SetParameter(espeakWORDGAP, 0,0);
-    espeak_SetVoiceByName("+f1");
+    if ((Result = nscCreateDispatcher(&hDispatch)) != NSC_OK)
+    {
+        printf("ERROR: nscCreateDispatcher return  %d \n",Result);
+        return false;
+    }
 
-    /*
-    espeak_SetParameter(espeakLINELENGTH,0,0);
-    espeak_SetPunctuationList(option_punctlist);
-    espeak_SetPhonemeTrace(option_phonemes,f_phonemes_out);
-    */
+    nscSetVoicesPaths(hSrv, dir.absolutePath().toLocal8Bits());
+    if( (Result = nscGetServerInfo(hSrv, &SrvInfo))!=NSC_OK)
+    {
+        printf("ERROR: nscGetServerInfo return %d \n",Result);
+        return false;
+    }
 
-    espeak_SetSynthCallback(synthCallback);
     initialized_ = true;
     return true;
 }
 
-bool ESpeakImpl::destroy()
+bool AcapelaImpl::destroy()
 {
     if (!initialized_)
     {
         return false;
     }
-
-    espeak_Terminate();
-
     initialized_ = false;
     return true;
 }
+
+void AcapelaImpl::collectAllPlayers()
+{
+    NSC_FINDVOICE_DATA FindVoice;
+    if (ptabFindVoice) {
+        free(ptabFindVoice);
+    }
+    ptabFindVoice=(NSC_FINDVOICE_DATA *)malloc(sizeof(NSC_FINDVOICE_DATA) * SrvInfo.nMaxNbVoice);
+    if (ptabFindVoice==NULL)
+    {
+        printf("ERROR: not enough memory\n");
+        return ;
+    }
+
+    printf("Searching voice...\n");
+    if( (Result = nscFindFirstVoice(hSrv,NULL,0,0,0,&FindVoice,&hVoice))==NSC_OK)
+    {
+        ptabFindVoice[idtabFindVoice++]=FindVoice;
+        while((Result = nscFindNextVoice(hVoice,&FindVoice))==NSC_OK)
+        {
+            ptabFindVoice[idtabFindVoice++]=FindVoice;
+        }
+    }
+    else
+    {
+        printf("ERROR: nscFindFirstVoice return  %d \n",Result);
+        return;
+    }
+    nscCloseFindVoice(hVoice);
+    printf("%d voices found:\n",idtabFindVoice);
+
+
+    nbvoice = idtabFindVoice;
+    idtabFindVoice = 0;
+    while (nbvoice>0)
+    {
+        printf("  %s\n",ptabFindVoice[idtabFindVoice].cVoiceName);
+        idtabFindVoice++;
+        nbvoice--;
+    }
+
+    /* Init channel  */
+    printf("\n");
+    printf("Enter a voice name? : ");
+    fgets(voice,sizeof(voice),stdin);
+    /*Voice name must match exactly the enumerated value so terminating \n char must be removed */
+    voice[strlen(voice)-1]='\0';
+    printf("Channel initialising with %s ... ",voice);
+    if( (Result = nscInitChannel(hSrv,voice,0,0,hDispatch,&ChId))==NSC_OK){
+        printf("Channel initialised\n");
+    }
+    else{
+        printf("ERROR: nscInitChannel return  %d \n",Result);
+        return -1;
+    }
+
+    /* Lock channel */
+    printf("Channel locking...   ");
+    if( (Result = nscLockChannel(hSrv,ChId,hDispatch,&hTTS))==NSC_OK){
+        printf("Channel locked\n");
+    }
+    else
+    {
+        printf("ERROR: nscLockChannel return  %d \n",Result);
+        return -1;
+    }
+
+    /* AddText channel */
+    printf("\n");
+    tadd[0]='\0';
+    while(tadd[0]=='\0'){
+        printf("Text to add to channel? : ");
+        fgets(tadd,sizeof(tadd),stdin);
+        tadd[strlen(tadd)-1]='\0';
+    }
+    int IdText = 1;
+    printf("Text %i adding...   ", IdText);
+
+    if( (Result = nscAddTextEx(hTTS,"UTF-8",tadd,strlen(tadd),(void *)IdText))==NSC_OK){
+        //if( (Result = nscAddText(hTTS,tadd,(void *)IdText))==NSC_OK){
+        printf("Text %i added\n", IdText);
+    }
+    else{
+        printf("ERROR: nscAddText return  %d \n",Result);
+        return -1;
+    }
+
+}
+
 
 }
