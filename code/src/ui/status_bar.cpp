@@ -730,6 +730,7 @@ void StatusBar::onConnectToPC(bool connected)
         }
         usbConnectionDialog(true)->popup("");
         closeUSBDialog();
+        onyx::screen::instance().updateWidget(0, onyx::screen::ScreenProxy::GC);
     }
     else if (!connected)
     {
