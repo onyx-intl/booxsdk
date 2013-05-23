@@ -29,7 +29,7 @@ protected Q_SLOTS:
             int user_data);
     void onCancelButtonClicked();
     void onOKButtonClicked();
-    void onConnectToPCWithPasswd(bool result);
+    void onConnectToPCWithPasswd(const bool result);
 
 Q_SIGNALS:
     void textFinished();
