@@ -479,6 +479,14 @@ void SysStatus::installSlots()
     {
         qDebug("\nCan not connect the needConnectionPasswd!\n");
     }
+
+    if (!connection_.connect(service, object, iface,
+                             "reportResultToSys",
+                             this,
+                             SLOT(onReportPasswdCompareResult(bool))))
+    {
+        qDebug("\nCan not connect the needConnectionPasswd!\n");
+    }
 }
 
 bool SysStatus::batteryStatus(int& current,
@@ -2238,14 +2246,33 @@ void SysStatus::onUserBehaviorSignal(const QByteArray &data)
     emit userBehaviorSignal(data);
 }
 
+
 void SysStatus::reportPasswdCompareResult(const bool result)
 {
-    emit connectToPCwithPasswd(result);
+    QDBusMessage message = QDBusMessage::createMethodCall(
+        service,            // destination
+        object,             // path
+        iface,              // interface
+        "onConnectToPCwithPasswd"      // method.
+    );
+
+    message << result;
+    QDBusMessage reply = connection_.call(message);
+    if (reply.type() == QDBusMessage::ErrorMessage)
+    {
+        qWarning("%s", qPrintable(reply.errorMessage()));
+    }
 }
 
 void SysStatus::onNeedConnectionPasswd(const QString &input)
 {
     emit needConnectionPasswd(input);
 }
+
+void SysStatus::onReportPasswdCompareResult(bool result)
+{
+    emit connectToPCwithPasswd(result);
+}
+
 
 }   // namespace sys

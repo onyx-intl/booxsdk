@@ -186,7 +186,7 @@ void PasswordDialogWithMsgBox::keyPressEvent(QKeyEvent *event)
     }
 }
 
-void PasswordDialogWithMsgBox::onConnectToPCWithPasswd(bool result)
+void PasswordDialogWithMsgBox::onConnectToPCWithPasswd(const bool result)
 {
     if(result)
     {

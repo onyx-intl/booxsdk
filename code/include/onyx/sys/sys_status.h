@@ -160,6 +160,7 @@ class SysStatus : public QObject
     bool requestMultiTouch();
     bool queryLedSignal();
     void onNeedConnectionPasswd(const QString &);
+    void onReportPasswdCompareResult(bool);
 
     // The following signals must be the same with system manager.
     // Need a better way to sync them.
