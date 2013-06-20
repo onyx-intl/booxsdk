@@ -17,6 +17,7 @@ namespace ui
 {
 
 static const int Device_Menu_Key = Qt::Key_Menu;
+static const int CUSTOM_TEXT_SIZE = -1;
 
 typedef float ZoomFactor;
 
