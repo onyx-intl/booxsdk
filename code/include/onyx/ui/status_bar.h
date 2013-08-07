@@ -73,6 +73,7 @@ Q_SIGNALS:
     void requestInputUrl();
     void requestInputText();
     void appClicked(int id);
+    void wifiItemClicked();
 
 private Q_SLOTS:
     void onProgressChanging(const int current, const int total);
@@ -98,6 +99,7 @@ private Q_SLOTS:
     void onHideVolumeDialog();
     void onConfigKeyboard();
     void autoSelect();
+    void onReportWifiNetwork(const int, const int, const int);
 
 private:
     virtual void mouseMoveEvent(QMouseEvent *me);

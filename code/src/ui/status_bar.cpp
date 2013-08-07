@@ -25,6 +25,7 @@
 #include "onyx/data/keys.h"
 #include "onyx/ui/keyboard_config_dialog.h"
 #include "onyx/sys/platform.h"
+#include "onyx/ui/status_bar_item_wifi_connection.h"
 
 namespace ui
 {
@@ -103,6 +104,11 @@ void StatusBar::setupConnections()
             SIGNAL(configKeyboard()),
             this,
             SLOT(onConfigKeyboard()));
+
+    connect(&sys_status,
+            SIGNAL(reportWifiNetwork(const int, const int, const int)),
+            this,
+            SLOT(onReportWifiNetwork(const int, const int, const int)));
 }
 
 /// Update some status when it's created.
@@ -660,10 +666,6 @@ void StatusBar::onWifiDeviceChanged(bool enabled)
     {
         ptr->show();
     }
-    else
-    {
-        ptr->hide();
-    }
 }
 void StatusBar::onReport3GNetwork(const int signal, const int total, const int network)
 {
@@ -940,7 +942,8 @@ StatusBarItem *StatusBar::item(const StatusBarItemType type, bool create)
         connect(item, SIGNAL(clicked()), this, SLOT(onInputTextClicked()));
         break;
     case CONNECTION:
-        item = new StatusBarItemConnection(this);
+        item = new StatusBarItemWifiConnection(this);
+        connect(item, SIGNAL(clicked()), this, SIGNAL(wifiItemClicked()));
         break;
     case THREEG_CONNECTION:
         item = new StatusBarItem3GConnection(this);
@@ -1023,6 +1026,34 @@ StatusBarItem *StatusBar::item(const StatusBarItemType type, bool create)
         addWidget(ptr.get());
     }
     return ptr.get();
+}
+
+
+void StatusBar::onReportWifiNetwork(const int signal, const int total, const int network)
+{
+    static int count = 0;
+    StatusBarItem *ptr = item(CONNECTION, false);
+    if (ptr)
+    {
+        StatusBarItemWifiConnection *conn_ptr = static_cast<StatusBarItemWifiConnection*>(ptr);
+        bool update = conn_ptr->setConnectionInfomation(signal, total, network);
+        onyx::screen::instance().enableUpdate(false);
+        QApplication::processEvents();
+        onyx::screen::instance().enableUpdate(true);
+        if (isVisible() && update)
+        {
+            if (++count % 2)
+            {
+                onyx::screen::instance().updateWidget(ptr,
+                        onyx::screen::ScreenProxy::GC, false);
+            }
+            else
+            {
+                onyx::screen::instance().updateWidget(0,
+                        onyx::screen::ScreenProxy::GC, false);
+            }
+        }
+    }
 }
 
 }  // namespace ui

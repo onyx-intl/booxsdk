@@ -24,6 +24,19 @@
     <file>images/signal_3g_5.png</file>
     <file>images/signal_3g_off.png</file>
 
+    <file>images/wifi_0_gray.png</file>
+    <file>images/wifi_1_gray.png</file>
+    <file>images/wifi_2_gray.png</file>
+    <file>images/wifi_3_gray.png</file>
+    <file>images/wifi_4_gray.png</file>
+    
+    <file>images/back_title.png</file>
+    <file>images/refresh_title.png</file>
+    <file>images/config_title.png</file>
+    <file>images/config_gray.png</file>
+    <file>images/network_connection_icon.png</file>
+    <file>images/lock_gray.png</file>
+    <file>images/status_gray.png</file>
 
   </qresource>
 </RCC>

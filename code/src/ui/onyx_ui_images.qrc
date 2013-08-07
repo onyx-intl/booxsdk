@@ -267,6 +267,12 @@
     <file>images/sub.png</file>
     <file>images/add.png</file>
     <file>images/citation_mode.png</file>
+    
+    <file>images/wifi_0.png</file>
+    <file>images/wifi_1.png</file>
+    <file>images/wifi_2.png</file>
+    <file>images/wifi_3.png</file>
+    <file>images/wifi_4.png</file>
 
     <file>images/adjust_position.png</file>
     <file>images/hyphenation.png</file>

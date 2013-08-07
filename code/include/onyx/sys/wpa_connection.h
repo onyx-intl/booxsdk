@@ -41,7 +41,10 @@ public:
         STATE_ACQUIRING_ADDRESS_ERROR,  ///< Could not acquire address.
         STATE_TIMEOUT,
         STATE_DISCONNECT,
+        STATE_CONNECTION_LOST           ///< Only for disconnected from complete state.
     };
+
+    static QString connectionStateToString(ConnectionState state);
 
 public Q_SLOTS:
     int  openCtrlConnection(const QString & name = QString());
@@ -50,6 +53,7 @@ public Q_SLOTS:
     bool update();
     bool status(QVariantMap &info, bool broadcast = true);
     bool isComplete(bool auto_connect = true);
+    bool isConnectionEstablished();
     bool listNetworks(WifiProfiles &networks);
     bool scan();
     bool scanResults(WifiProfiles & aps);
@@ -61,6 +65,8 @@ public Q_SLOTS:
     WifiProfile connectingAP();
 
     bool disconnectNetwork();
+    bool removeAllNetworks();
+
     bool ping();
     bool acquireAddress(bool acquire = true);
     bool assignStaticAddress(const QString & ip,
@@ -90,7 +96,6 @@ private:
 
     int  addNetwork();
     bool setNetworkParam(int id, const char *field, const char * value, bool quote);
-    bool removeAllNetworks();
     bool removeNetwork(int id);
 
     bool setWepKey(int network_id, const QString &key, int id);

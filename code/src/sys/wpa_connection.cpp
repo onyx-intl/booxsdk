@@ -101,6 +101,49 @@ WpaConnection::~WpaConnection()
 {
 }
 
+QString WpaConnection::connectionStateToString(ConnectionState state)
+{
+    switch (state)
+    {
+    case STATE_UNKNOWN:
+        return "STATE_UNKNOWN";
+    case STATE_DISABLED:
+        return "STATE_DISABLED";
+    case STATE_HARDWARE_ERROR:
+        return "STATE_HARDWARE_ERROR";
+    case STATE_ABORTED:
+        return "STATE_ABORTED";
+    case STATE_SCANNING:
+        return "STATE_SCANNING";
+    case STATE_SCANNED:
+        return "STATE_SCANNED";
+    case STATE_CONNECTING:
+        return "STATE_CONNECTING";
+    case STATE_DISCONNECTED:
+        return "STATE_DISCONNECTED";
+    case STATE_AUTHENTICATION:
+        return "STATE_AUTHENTICATION";
+    case STATE_AUTHENTICATION_FAILED:
+        return "STATE_AUTHENTICATION_FAILED";
+    case STATE_CONNECTED:
+        return "STATE_CONNECTED";
+    case STATE_ACQUIRING_ADDRESS:
+        return "STATE_ACQUIRING_ADDRESS";
+    case STATE_COMPLETE:
+        return "STATE_COMPLETE";
+    case STATE_CONNECT_ERROR:
+        return "STATE_CONNECT_ERROR";
+    case STATE_ACQUIRING_ADDRESS_ERROR:
+        return "STATE_ACQUIRING_ADDRESS_ERROR";
+    case STATE_TIMEOUT:
+        return "STATE_TIMEOUT";
+    case STATE_DISCONNECT:
+        return "STATE_DISCONNECT";
+    default:
+        return "STATE_UNKNOWN";
+    }
+}
+
 QString WpaConnection::defaultInterface()
 {
 #ifdef CONFIG_CTRL_IFACE_UDP
@@ -247,7 +290,7 @@ int WpaConnection::openCtrlConnection(const QString & name)
 bool WpaConnection::update()
 {
     QVariantMap info;
-    status(info);
+    status(info, true);
 
     WifiProfiles all;
     listNetworks(all);
@@ -302,6 +345,11 @@ bool WpaConnection::isComplete(bool auto_connect)
         return true;
     }
     return false;
+}
+
+bool WpaConnection::isConnectionEstablished()
+{
+    return isComplete(false);
 }
 
 /// List all available networks.
@@ -410,6 +458,9 @@ bool WpaConnection::connectTo(WifiProfile ap)
     // To connect to hidden ssid. Seems work.
     setNetworkParam(id, "ap_scan", "1", false);
     setNetworkParam(id, "scan_ssid", "1", false);
+    
+    // timeout.
+    setNetworkParam(id, "dot11RSNAConfigSATimeout", "5", false);
 
     // encryption.
     encryptionAttributes(ap);
@@ -779,7 +830,7 @@ void WpaConnection::parseMessage(QByteArray & data)
         // broadcastState(STATE_CONNECTING);
         update();
     }
-    else if (data.contains(WPA_EVENT_DISCONNECTED))
+    else if (data.contains(WPA_EVENT_DISCONNECTED) && !data.contains(INVALID_BSSID))
     {
         // Incorrect password.
         // "WPA: 4-Way Handshake failed - pre-shared key may be incorrect"))
@@ -1001,7 +1052,7 @@ QString WpaConnection::address()
     QList<QNetworkInterface> all = QNetworkInterface::allInterfaces();
     foreach(QNetworkInterface ni, all)
     {
-        //qDebug("interface name %s", qPrintable(ni.name()));
+        qDebug("interface name %s", qPrintable(ni.name()));
         QList<QNetworkAddressEntry> addrs = ni.addressEntries();
         foreach(QNetworkAddressEntry entry, addrs)
         {
@@ -1009,7 +1060,7 @@ QString WpaConnection::address()
             {
                 result = entry.ip().toString();
             }
-            //qDebug("ip address %s", qPrintable(entry.ip().toString()));
+            qDebug("ip address %s", qPrintable(entry.ip().toString()));
         }
     }
     return result;
@@ -1021,7 +1072,7 @@ QString WpaConnection::hardwareAddress()
     QList<QNetworkInterface> all = QNetworkInterface::allInterfaces();
     foreach(QNetworkInterface ni, all)
     {
-        //qDebug("interface name %s", qPrintable(ni.name()));
+        qDebug("interface name %s", qPrintable(ni.name()));
         if (ni.name().compare(ctrl_iface_, Qt::CaseInsensitive) == 0)
         {
             return ni.hardwareAddress();

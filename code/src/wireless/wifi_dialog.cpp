@@ -3,7 +3,6 @@
 #include "onyx/screen/screen_update_watcher.h"
 #include "onyx/data/data.h"
 #include "onyx/data/data_tags.h"
-#include "onyx/wireless/ap_conf_dialog_s.h"
 
 namespace ui
 {
@@ -11,6 +10,7 @@ const int SPACING = 2;
 const int WIDGET_HEIGHT = 36;
 static const int AP_ITEM_HEIGHT = 55;
 static const int MARGINS = 10;
+static const int DIALOG_SPACE = 30;
 
 static const QString BUTTON_STYLE =    "\
 QPushButton                             \
@@ -71,19 +71,13 @@ static WifiViewFactory my_factory;
 
 WifiDialog::WifiDialog(QWidget *parent,
                        SysStatus & sys)
-#ifndef Q_WS_QWS
-    : QDialog(parent, 0)
-#else
     : QDialog(parent, Qt::FramelessWindowHint)
-#endif
     , big_box_(this)
-    , title_hbox_(0)
     , state_widget_layout_(0)
     , content_layout_(0)
     , ap_layout_(0)
     , buttons_layout_(0)
-    , title_icon_label_(0)
-    , title_text_label_(tr("Wireless Connections"), 0)
+//    , hardware_address_("", 0)
     , close_button_("", 0)
     , state_widget_(this)
     , prev_button_(QPixmap(":/images/prev_page.png"), "", this)
@@ -91,19 +85,26 @@ WifiDialog::WifiDialog(QWidget *parent,
     , ap_view_(&my_factory, this)
     , sys_(sys)
     , proxy_(sys.connectionManager())
-    , ap_dialog_visible_(false)
-    , enable_keyboard_(true)
-    , scanned_once_(false)
+    , is_configuration_(false)
+    , restart_for_auth_failed_(false)
 {
-    setAutoFillBackground(true);
-    setBackgroundRole(QPalette::Base);
-
+    setGeometry(0, 0, ui::screenGeometry().width(), ui::screenGeometry().height());
     createLayout();
     setupConnections();
 }
 
 WifiDialog::~WifiDialog()
 {
+}
+
+void WifiDialog::updateTr()
+{
+    update();
+}
+
+void WifiDialog::updateFonts()
+{
+
 }
 
 void WifiDialog::runBackGround()
@@ -115,26 +116,50 @@ void WifiDialog::runBackGround()
 
 int WifiDialog::popup(bool scan, bool auto_connect)
 {
-    scanned_once_ = false;
+    sys::SysStatus::instance().setSystemBusy(true);
+
     clicked_ssid_.clear();
 
     proxy_.enableAutoConnect(auto_connect);
+    onScanReturned();
 
-    showMaximized();
-    scanResults(scan_results_);
-    arrangeAPItems(scan_results_);
+    sys::SysStatus::instance().setSystemBusy(false);
+
     onyx::screen::watcher().addWatcher(this);
+    update();
+    onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GC);
+
     if (scan)
     {
         triggerScan();
     }
+
+    state_widget_.dashBoard().setFocusTo(0, 1);
+
+    update();
+    onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GU);
+
     bool ret = exec();
+    update();
+    onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GC);
     onyx::screen::watcher().removeWatcher(this);
     return ret;
 }
 
 void WifiDialog::keyPressEvent(QKeyEvent *)
 {
+}
+
+bool WifiDialog::event(QEvent *e)
+{
+    bool ret = QDialog::event(e);
+    if(e->type() == QEvent::UpdateRequest)
+    {
+        onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GU);
+        e->accept();
+        return true;
+    }
+    return ret;
 }
 
 void WifiDialog::keyReleaseEvent(QKeyEvent *ke)
@@ -144,18 +169,32 @@ void WifiDialog::keyReleaseEvent(QKeyEvent *ke)
         ke->accept();
         reject();
     }
+    if(this->hasFocus())
+    {
+        state_widget_.dashBoard().setFocusTo(0, 1);
+    }
 }
 
 void WifiDialog::paintEvent(QPaintEvent *e)
 {
     QPainter painter(this);
-    painter.fillRect(title_hbox_.contentsRect(), QBrush(Qt::black));
 
-    QPainterPath path;
-    path.addRoundedRect(content_layout_.contentsRect().adjusted(2, 2, -2, -2), 8, 8, Qt::AbsoluteSize);
-    painter.fillPath(path, QBrush(QColor(230, 230, 230)));
-    painter.setPen(QColor(Qt::black));
-    painter.drawPath(path);
+    QRectF rc(0, state_widget_layout_.contentsRect().height(), width(), height()+4);
+    QPainterPath p_path;
+    p_path.addRect(rc);
+    QBrush b(Qt::white);
+    painter.setBrush(b);
+    painter.drawPath(p_path);
+
+    QPen pen;
+    pen.setColor(Qt::black);
+    pen.setWidth(SPACING);
+    painter.setPen(pen);
+    int line_1_start_x = 0;
+    int line_1_start_y = state_widget_layout_.contentsRect().y() + state_widget_layout_.contentsRect().height();
+    int line_1_end_x = ui::screenGeometry().width();
+    int line_1_end_y = line_1_start_y;
+    painter.drawLine(line_1_start_x, line_1_start_y, line_1_end_x, line_1_end_y);
 }
 
 void WifiDialog::resizeEvent(QResizeEvent *re)
@@ -173,42 +212,19 @@ void WifiDialog::mouseReleaseEvent(QMouseEvent *)
 
 void WifiDialog::createLayout()
 {
+    state_widget_.setStyleSheet("background: gray;");
+
     // big_box_.setSizeConstraint(QLayout::SetMinimumSize);
-    big_box_.setSpacing(SPACING);
-    big_box_.setContentsMargins(SPACING, SPACING, SPACING, SPACING);
-
-    // title hbox.
-    big_box_.addLayout(&title_hbox_);
-    title_hbox_.setContentsMargins(0, 0, 0, 0);
-    title_hbox_.addWidget(&title_icon_label_, 0, Qt::AlignVCenter);
-    title_hbox_.addSpacing(SPACING * 2);
-    title_hbox_.addWidget(&title_text_label_, 0, Qt::AlignVCenter);
-    title_hbox_.addStretch(0);
-    title_hbox_.addWidget(&close_button_);
-    title_icon_label_.setPixmap(QPixmap(":/images/network_connection.png"));
-    title_text_label_.setAlignment(Qt::AlignVCenter);
-    title_icon_label_.setFixedHeight(WIDGET_HEIGHT);
-    title_text_label_.useTitleBarStyle();
-    title_text_label_.setFixedHeight(WIDGET_HEIGHT);
-
-    close_button_.setStyleSheet(BUTTON_STYLE);
-    QPixmap close_pixmap(":/images/close.png");
-    close_button_.setIconSize(close_pixmap.size());
-    close_button_.setIcon(QIcon(close_pixmap));
-    close_button_.setFocusPolicy(Qt::NoFocus);
-    QObject::connect(&close_button_, SIGNAL(clicked()), this, SLOT(onCloseClicked()));
-
+    big_box_.setContentsMargins(SPACING, 0, SPACING, SPACING);
     // content layout.
     big_box_.addLayout(&content_layout_);
-    content_layout_.setContentsMargins(MARGINS, MARGINS, MARGINS, MARGINS);
 
     // Status.
-    state_widget_layout_.setContentsMargins(MARGINS, 0, MARGINS, 0);
     state_widget_layout_.addWidget(&state_widget_);
-    content_layout_.addSpacing(10);
     content_layout_.addLayout(&state_widget_layout_);
     QObject::connect(&state_widget_, SIGNAL(refreshClicked()), this, SLOT(onRefreshClicked()));
     QObject::connect(&state_widget_, SIGNAL(customizedClicked()), this, SLOT(onCustomizedClicked()));
+    QObject::connect(&state_widget_, SIGNAL(backClicked()), this, SLOT(onBackClicked()));
     QObject::connect(&prev_button_, SIGNAL(clicked()), &ap_view_, SLOT(goPrev()), Qt::QueuedConnection);
     QObject::connect(&next_button_, SIGNAL(clicked()), &ap_view_, SLOT(goNext()), Qt::QueuedConnection);
 
@@ -221,6 +237,7 @@ void WifiDialog::createLayout()
     QObject::connect(&ap_view_, SIGNAL(positionChanged(const int, const int)), this, SLOT(onPositionChanged(const int, const int)));
     QObject::connect(&ap_view_, SIGNAL(itemActivated(CatalogView*, ContentView*, int)), this, SLOT(onItemActivated(CatalogView*, ContentView*, int)));
 
+    ap_view_.setFixedHeight(550);
     ap_view_.setPreferItemSize(QSize(-1, AP_ITEM_HEIGHT));
     ap_view_.setNeighbor(&state_widget_.dashBoard(), CatalogView::UP);
     content_layout_.addSpacing(50);
@@ -236,9 +253,12 @@ void WifiDialog::createLayout()
     showPaginationButtons(true, true);
 
     // Hardware address.
-    hardware_address_.setFixedHeight(WIDGET_HEIGHT);
+   /* hardware_address_.setFixedHeight(WIDGET_HEIGHT);
     hardware_address_.setContentsMargins(MARGINS, 0, MARGINS, 0);
-    content_layout_.addWidget(&hardware_address_);
+    content_layout_.addWidget(&hardware_address_);*/
+
+    content_layout_.addSpacing(DIALOG_SPACE);
+    big_box_.addStretch();
 }
 
 void WifiDialog::scanResults(WifiProfiles &aps)
@@ -324,6 +344,10 @@ void WifiDialog::arrangeAPItems(WifiProfiles & profiles)
     appendStoredAPs(profiles);
 
     ap_view_.setData(datas_, true);
+    if(datas_.size() > 0)
+    {
+        ap_view_.setFocusTo(0, 0);
+    }
     showPaginationButtons(ap_view_.hasPrev(), ap_view_.hasNext());
 
     connectAllAPItems(ap_view_);
@@ -342,6 +366,25 @@ void WifiDialog::setupConnections()
 
     QObject::connect(&sys_, SIGNAL(sdioChangedSignal(bool)),
             this, SLOT(onSdioChanged(bool)));
+
+    QObject::connect(&proxy_, SIGNAL(controlStateChanged(WpaConnectionManager::ControlState)),
+        this, SLOT(onControlStateChanged(WpaConnectionManager::ControlState)));
+
+    QObject::connect(&proxy_, SIGNAL(restartWpa()), this, SLOT(onRestartWpa()));
+}
+
+void WifiDialog::onRestartWpa()
+{
+    sys::SysStatus::instance().setSystemBusy(true);
+    proxy_.stop();
+    sys::SysStatus::instance().setSystemBusy(false);
+
+//    clearDatas(datas_);
+//    ap_view_.setData(datas_);
+
+    restart_for_auth_failed_ = true;
+    sys::SysStatus::instance().setSystemBusy(true);
+    QTimer::singleShot(5000, this, SLOT(scan()));
 }
 
 void WifiDialog::clear()
@@ -350,6 +393,11 @@ void WifiDialog::clear()
 
 void WifiDialog::scan()
 {
+    if (restart_for_auth_failed_)
+    {
+        restart_for_auth_failed_ = false;
+        sys::SysStatus::instance().setSystemBusy(false);
+    }
     proxy_.start();
 }
 
@@ -424,6 +472,11 @@ QString WifiDialog::connectingAccessPoint()
     return proxy_.connectingAP().ssid();
 }
 
+void WifiDialog::enableIsConfiguration()
+{
+    is_configuration_ = true;
+}
+
 void WifiDialog::onScanTimeout()
 {
     // If we can not connect to wpa supplicant before, we need to
@@ -435,7 +488,7 @@ void WifiDialog::onConnectionTimeout()
 {
     // Need to clean up password.
     // Timeout in wifi dialog.
-    updateStateLabel(WpaConnection::STATE_TIMEOUT);
+    updateStateLabel(WpaConnectionManager::CONTROL_CONNECTING_FAILED);
 }
 
 void WifiDialog::onAPItemClicked(WifiProfile & profile)
@@ -463,6 +516,14 @@ void WifiDialog::onCustomizedClicked()
     }
 }
 
+void WifiDialog::onBackClicked()
+{
+    is_configuration_ = false;
+    QTimer::singleShot(0, this, SLOT(onComplete()));
+    update();
+    onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GU);
+}
+
 void WifiDialog::onCloseClicked()
 {
     reject();
@@ -474,11 +535,11 @@ void WifiDialog::onSdioChanged(bool on)
     {
         onRefreshClicked();
         enableChildren(on);
-        updateHardwareAddress();
+        //updateHardwareAddress();
     }
     else
     {
-        updateStateLabel(WpaConnection::STATE_DISABLED);
+        updateStateLabel(WpaConnectionManager::CONTROL_STOP);
         enableChildren(on);
     }
 }
@@ -497,61 +558,53 @@ void WifiDialog::onScanReturned()
 
 void WifiDialog::onConnectionChanged(WifiProfile profile, WpaConnection::ConnectionState state)
 {
+}
+
+void WifiDialog::onControlStateChanged(WpaConnectionManager::ControlState state)
+{
     updateStateLabel(state);
-    if (state == WpaConnection::STATE_CONNECTED)
+    if (state == WpaConnectionManager::CONTROL_CONNECTED)
     {
     }
-    if (state == WpaConnection::STATE_COMPLETE)
+    else if (state == WpaConnectionManager::CONTROL_COMPLETE)
     {
     }
-    else if (state == WpaConnection::STATE_ACQUIRING_ADDRESS_ERROR)
+    else if (state == WpaConnectionManager::CONTROL_ACQUIRING_ADDRESS_FAILED)
     {
     }
-    else if (state == WpaConnection::STATE_AUTHENTICATION_FAILED)
+    else if (state == WpaConnectionManager::CONTROL_CONNECTING_FAILED)
     {
     }
-    else if (state == WpaConnection::STATE_SCANNED)
+    else if (state == WpaConnectionManager::CONTROL_SCANNED)
     {
         onScanReturned();
     }
-    else if (state == WpaConnection::STATE_CONNECTING)
+    else if (state == WpaConnectionManager::CONTROL_CONNECTING)
     {
-        // Mark the item selected.
-        qDebug("connecting to %s", qPrintable(profile.ssid()));
     }
     onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GU);
 }
 
-void WifiDialog::updateStateLabel(WpaConnection::ConnectionState state)
+void WifiDialog::updateStateLabel(WpaConnectionManager::ControlState state)
 {
-    // If wifi is disabled.
-    //if (!wifi_enabled_ && state != WpaConnection::STATE_DISABLED)
-    //{
-    //    return;
-    //}
-
     qDebug("WifiDialog::updateStateLabel %d", state);
+
     switch (state)
     {
-    case WpaConnection::STATE_DISABLED:
-        state_widget_.setState(tr("Wifi is disabled."));
+    case WpaConnectionManager::CONTROL_INIT:
+        state_widget_.setState(tr("Starting..."));
         break;
-    case WpaConnection::STATE_HARDWARE_ERROR:
-        state_widget_.setState(tr("Can not start wifi device."));
+    case WpaConnectionManager::CONTROL_STOP:
+        state_widget_.setState("");
         break;
-    case WpaConnection::STATE_SCANNING:
+    case WpaConnectionManager::CONTROL_SCANNING:
         state_widget_.setState(tr("Scanning..."));
         break;
-    case WpaConnection::STATE_SCANNED:
-        //if (!isConnecting())
-        {
-            state_widget_.setState(tr("Ready"));
-            onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GU);
-        }
+    case WpaConnectionManager::CONTROL_SCANNED:
+        state_widget_.setState(tr(""));
+        onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GU);
         break;
-    case WpaConnection::STATE_CONNECTING:
-    case WpaConnection::STATE_CONNECTED:
-    case WpaConnection::STATE_ACQUIRING_ADDRESS:
+    case WpaConnectionManager::CONTROL_CONNECTING:
         {
             QString msg = tr("Connecting to ");
             QString ssid = connectingAccessPoint();
@@ -559,32 +612,60 @@ void WifiDialog::updateStateLabel(WpaConnection::ConnectionState state)
             {
                 ssid = clicked_ssid_;
             }
-            msg.append(ssid+"...");
+            msg.append(ssid + " ...");
             state_widget_.setState(msg);
         }
         break;
-    case WpaConnection::STATE_ACQUIRING_ADDRESS_ERROR:
-        state_widget_.setState(tr("Could not acquire address."));
-        break;
-    case WpaConnection::STATE_COMPLETE:
+    case WpaConnectionManager::CONTROL_CONNECTED:
         {
-            QString text(tr("Connected to "));
-            text.append(connectingAccessPoint());
-            state_widget_.setState(text);
-            QTimer::singleShot(0, this, SLOT(onComplete()));
+            QString msg = tr("Associated.");
+            state_widget_.setState(msg);
         }
         break;
-    case WpaConnection::STATE_CONNECT_ERROR:
-    case WpaConnection::STATE_DISCONNECT:
-        state_widget_.setState(tr("Not connected."));
+    case WpaConnectionManager::CONTROL_ACQUIRING_ADDRESS:
+        {
+            QString msg = tr("Acquiring IP Address...");
+            state_widget_.setState(msg);
+        }
         break;
-    case WpaConnection::STATE_TIMEOUT:
-        state_widget_.setState(tr("Timeout."));
+    case WpaConnectionManager::CONTROL_ACQUIRING_ADDRESS_FAILED:
+        state_widget_.setState(tr("Could not acquire address."));
         break;
-    case WpaConnection::STATE_ABORTED:
-        state_widget_.setState(tr("Aborted."));
+    case WpaConnectionManager::CONTROL_COMPLETE:
+        {
+            QString text(tr("Connected to "));
+            QString ssid = connectingAccessPoint();
+            if(!ssid.isEmpty())
+            {
+                text.append(ssid);
+            }
+            else if(!clicked_ssid_.isEmpty())
+            {
+                text.append(clicked_ssid_);
+            }
+            else
+            {
+                text = tr("Connected.");
+            }
+            state_widget_.setState(text);
+
+            if(!is_configuration_)
+            {
+                int millis = 200;
+                QTimer::singleShot(millis, this, SLOT(onComplete()));
+            }
+
+            onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GU);
+        }
+        break;
+    case WpaConnectionManager::CONTROL_CONNECTING_FAILED:
+        state_widget_.setState(tr("Authentication failed."));
+        break;
+    case WpaConnectionManager::CONTROL_DISCONNECTED:
+//        state_widget_.setState(tr("Disconnected."));
         break;
     default:
+        state_widget_.setState(tr(""));
         break;
     }
 
@@ -598,43 +679,34 @@ void WifiDialog::updateStateLabel(WpaConnection::ConnectionState state)
 /// can use the password remembered.
 void WifiDialog::onNeedPassword(WifiProfile profile)
 {
-    if (ap_dialog_visible_)
-    {
-        return;
-    }
     qDebug("Need password now, password incorrect or not available.");
+
+    // reserve the signal level value
+    int level = profile.level();
 
     // No password remembered or incorrect.
     bool ok = showConfigurationDialog(profile);
+    profile.setLevel(level);
+
     if (ok)
     {
         // We can store the AP here as user already updated password.
         storeAp(profile);
 
         // Connect again.
+        proxy_.resetConnectRetry();
         proxy_.connectTo(profile);
     }
     else
     {
-        proxy_.stop();
-        updateStateLabel(WpaConnection::STATE_ABORTED);
+        clicked_ssid_.clear();
     }
 }
 
 void WifiDialog::onNoMatchedAP()
 {
     proxy_.scanResults(scan_results_);
-
-    // trigger scan again if no match ap found
-    if (!scanned_once_)
-    {
-        scanned_once_ = true;
-        QTimer::singleShot(500, this, SLOT(triggerScan()));
-    }
-    else
-    {
-        arrangeAPItems(scan_results_);
-    }
+    arrangeAPItems(scan_results_);
 }
 
 void WifiDialog::onComplete()
@@ -650,6 +722,7 @@ void WifiDialog::onItemActivated(CatalogView *catalog, ContentView *item, int us
     }
     WifiProfile * d = static_cast<WifiProfile *>(item->data());
     static_cast<WifiAPItem *>(item)->activateItem();
+    proxy_.resetConnectRetry();
     onAPItemClicked(*d);
 }
 
@@ -670,6 +743,15 @@ void WifiDialog::sort(ODatas &list)
 {
     // DescendingOrder
     qSort(list.begin(), list.end(), greaterBySignalLevel);
+}
+
+ApConfigDialogS *WifiDialog::apConfigDialog(WifiProfile &profile)
+{
+    if (0 == ap_config_dialog_)
+    {
+        ap_config_dialog_.reset(new ApConfigDialogS(this, profile));
+    }
+    return ap_config_dialog_.get();
 }
 
 void WifiDialog::setPassword(WifiProfile & profile,
@@ -713,14 +795,14 @@ WifiProfiles WifiDialog::records(sys::SystemConfig &conf)
     conf.loadWifiProfiles(records);
     return records;
 }
-
+/*
 void WifiDialog::updateHardwareAddress()
 {
     QString text(tr("Hardware Address: %1"));
     text = text.arg(proxy_.hardwareAddress());
     hardware_address_.setText(text);
 }
-
+*/
 void WifiDialog::checkAndRestorePassword(WifiProfile &profile)
 {
     sys::SystemConfig conf;
@@ -739,18 +821,28 @@ void WifiDialog::checkAndRestorePassword(WifiProfile &profile)
 
 bool WifiDialog::showConfigurationDialog(WifiProfile &profile)
 {
+    static bool denied_reentrance = false;
+    if (denied_reentrance)
+    {
+        qDebug() << "denied reentrance";
+        return false;
+    }
+    denied_reentrance = true;
+
     // load the stored password
     checkAndRestorePassword(profile);
 
-    ap_dialog_visible_ = true;
-    int ret = 0;
-    if(enable_keyboard_)
+
+    if (!isActiveWindow())
     {
-        ApConfigDialogS dialog(this, profile);
-        ret = dialog.popup();
+        qDebug() << "WifiDialog, not active window, ignore showing config dialog";
+        denied_reentrance = false;
+        return false;
     }
 
-    ap_dialog_visible_ = false;
+    ap_config_dialog_.reset(0);
+    int ret = apConfigDialog(profile)->popup();
+    denied_reentrance = false;
 
     // Update screen.
     update();

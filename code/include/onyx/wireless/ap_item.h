@@ -28,6 +28,7 @@ public Q_SLOTS:
 Q_SIGNALS:
     void refreshClicked();
     void customizedClicked();
+    void backClicked();
 
 protected:
     virtual bool event(QEvent *e);
@@ -38,6 +39,7 @@ private:
 
 private:
     QHBoxLayout layout_;
+    OnyxLabel icon_label_;
     OnyxLabel title_label_;
     ui::CatalogView dash_board_;
 };
@@ -79,22 +81,26 @@ private:
     bool isSelected();
     bool isAPChecked();
 
+    int getSignalStrength(int level_in_profile);
+
 private Q_SLOTS:
     void onConfigButtonClicked();
 
 private:
     QHBoxLayout hor_layout_;
+    OnyxLabel status_icon_label_;
     OnyxLabel ssid_label_;
     OnyxPushButton config_button_;
     OnyxLabel lock_icon_label_;
+    OnyxLabel signal_icon_label_;
+    int signal_count_;
 
-    static const int SIGNAL_ICONS = 5;
+    static const int SIGNAL_ICONS = 4;
     OnyxLabel signal_labels_[SIGNAL_ICONS];
     WifiProfile profile_;
 
 
     static WifiAPItem *selected_item_;
-    static scoped_ptr<QPixmap> selected_pixmap_;
 };
 
 typedef QVector<WifiAPItem *> WifiAPItems;
