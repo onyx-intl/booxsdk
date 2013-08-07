@@ -107,6 +107,8 @@ public:
     bool clearDialupProfiles();
     bool loadDialupProfiles(DialupProfiles & all);
     bool saveDialupProfiles(DialupProfiles & all);
+    QString wifiHardwareAddress();
+    QString saveWifiHardwareAddr(const QString &wifi_hardware_addr);
 
     static QString defaultPincode();
     static void setDefaultPincode(const QString &);

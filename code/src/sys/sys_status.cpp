@@ -277,6 +277,14 @@ void SysStatus::installSlots()
     }
 
     if (!connection_.connect(service, object, iface,
+                             "updateWifiStatus",
+                             this,
+                             SLOT(onUpdateWifiStatus())))
+    {
+        qDebug("\nCan not connect the signalStrengthChanged signal\n");
+    }
+
+    if (!connection_.connect(service, object, iface,
                              "volumeChanged",
                              this,
                              SLOT(onVolumeChanged(int, bool))))
@@ -451,6 +459,14 @@ void SysStatus::installSlots()
                                      const QByteArray &))))
     {
         qDebug("\nCan not connect the reportUserBehavior signal\n");
+    }
+
+    if (!connection_.connect(service, object, iface,
+                             "wifiConnectionChanged",
+                             this,
+                             SLOT(onReportWifiNetwork(const int, const int, const int))))
+    {
+        qDebug("\nCan not connect the signalStrengthChanged signal\n");
     }
 }
 
@@ -1396,6 +1412,26 @@ void SysStatus::reportDownloadState(const QString &path,
     }
 }
 
+void SysStatus::queryWifiStatus()
+{
+    QDBusMessage message = QDBusMessage::createMethodCall(
+        service,            // destination
+        object,             // path
+        iface,              // interface
+        "queryWifiStatus"      // method.
+    );
+
+    QDBusMessage reply = connection_.call(message);
+    if (reply.type() == QDBusMessage::ReplyMessage)
+    {
+        return;
+    }
+    else if (reply.type() == QDBusMessage::ErrorMessage)
+    {
+        qWarning("%s", qPrintable(reply.errorMessage()));
+    }
+}
+
 void SysStatus::triggerOnlineService()
 {
     QDBusMessage message = QDBusMessage::createMethodCall(
@@ -2161,6 +2197,36 @@ void SysStatus::onConfigKeyboard()
 void SysStatus::onUserBehaviorSignal(const QByteArray &data)
 {
     emit userBehaviorSignal(data);
+}
+
+void SysStatus::onReportWifiNetwork(const int signal, const int total, const int network)
+{
+    emit reportWifiNetwork(signal, total, network);
+}
+
+void SysStatus::wifiNetworkSignal(const int signal, const int total, const int network)
+{
+    QDBusMessage message = QDBusMessage::createMethodCall(
+        service,            // destination
+        object,             // path
+        iface,              // interface
+        "wifiNetworkSignal"      // method.
+    );
+
+    message << signal;
+    message << total;
+    message << network;
+
+    QDBusMessage reply = connection_.call(message);
+    if (reply.type() == QDBusMessage::ReplyMessage)
+    {
+        return ;
+    }
+    else if (reply.type() == QDBusMessage::ErrorMessage)
+    {
+        qWarning("%s", qPrintable(reply.errorMessage()));
+    }
+    return ;
 }
 
 }   // namespace sys

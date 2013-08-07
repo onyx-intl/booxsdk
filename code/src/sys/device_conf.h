@@ -22,6 +22,9 @@ class DeviceConfig
 
     static QString deviceIdFromDatabase(QSqlDatabase &db);
     static QString serialNumberFromDatabase(QSqlDatabase& db);
+    static QString wifiHardwareAddrFromDatabase(QSqlDatabase &db);
+    static QString setWifiHardwareAddrToDatabase(QSqlDatabase &db, const QString &string);
+
   private:
     DeviceConfig() {}
     ~DeviceConfig() {}

@@ -22,10 +22,30 @@ class WpaConnectionManager : public QObject
     Q_OBJECT
 
 public:
+    // Used by manager and caller. Normally, caller is not necessary to access
+    // wpa connection state.
+    enum ControlState
+    {
+        CONTROL_INIT,               ///< Init state.
+        CONTROL_SCANNING,           ///< In scanning.
+        CONTROL_SCANNED,            ///< Scan finished.
+        CONTROL_CONNECTING,         ///< In connecting.
+        CONTROL_CONNECTED,          ///< connected.
+        CONTROL_CONNECTING_TIMEOUT, ///< timeout.
+        CONTROL_CONNECTING_FAILED,  ///< failed, psk incorrect.
+        CONTROL_DISCONNECTED,       ///< Disconnected
+        CONTROL_ACQUIRING_ADDRESS,  ///< Acquiring address.
+        CONTROL_ACQUIRING_ADDRESS_FAILED,
+        CONTROL_COMPLETE,           ///< All finished.
+        CONTROL_STOP,
+    };
+
+public:
     WpaConnectionManager();
     ~WpaConnectionManager();
 
     bool isConnectionOnProgress();
+    bool isConnectionComplete();
 
 public Q_SLOTS:
     void enableAutoConnect(bool e) { auto_connect_ = e; }
@@ -37,17 +57,23 @@ public Q_SLOTS:
     bool start();
     bool stop();
 
-    WpaConnection::ConnectionState state() { return internal_state_; }
+    WpaConnection::ConnectionState wpaState();
+    ControlState controlState();
+
     void scanResults(WifiProfiles &);
 
     bool connectTo(WifiProfile profile);
     WifiProfile connectingAP();
+    void resetConnectRetry();
 
     QString networkInterface();
     QString address();
     QString hardwareAddress();
 
     void queryStatus();
+
+    void enableSuspendPeriod();
+    void disableSuspendPeriod();
 
 private Q_SLOTS:
     bool enableSdio(bool enable = true) const;
@@ -58,7 +84,7 @@ private Q_SLOTS:
     bool stopWpaSupplicant();
     void onSdioChanged(bool on);
 
-    void triggerScan();
+    void initScan();
     void scan();
     void onScanTimeout();
     void onScanReturned(WifiProfiles & list);
@@ -69,12 +95,16 @@ private Q_SLOTS:
 
     void onComplete();
 
+    void onRestartWpa();
+
 Q_SIGNALS:
     // signals for caller
     void wpaStateChanged(bool running);
+    void controlStateChanged(WpaConnectionManager::ControlState control);
     void connectionChanged(WifiProfile profile, WpaConnection::ConnectionState state);
     void passwordRequired(WifiProfile profile);
     void noMatchedAP();
+    void restartWpa();
 
 private:
     bool checkWifiDevice();
@@ -87,19 +117,23 @@ private:
     bool syncAuthentication(WifiProfile & source, WifiProfile & target);
     void saveAp(WifiProfile & profile);
 
-    void increaseScanRetry() { ++scan_count_; }
-    void resetScanRetry() { scan_count_ = 0; }
-    bool canScanRetry() { return scan_count_ <= 5; }
+    void broadcastPasswordRequireSignal(WifiProfile profile);
+
+    void increaseScanRetry() { ++scan_retry_; }
+    void resetScanRetry() { scan_retry_ = 0; }
+    bool canScanRetry();
+    void clearScanContext();
 
     int increaseConnectRetry() { return ++connect_retry_; }
-    void resetConnectRetry() { connect_retry_ = 0; }
     bool canRetryConnect();
+    void clearConnectContext();
 
     bool connectToBestAP();
-    bool isConnecting();
-    void setConnecting(bool c);
+
     void stopAllTimers();
-    void setState(WifiProfile profile, WpaConnection::ConnectionState s);
+    void setWpaState(WifiProfile profile, WpaConnection::ConnectionState s);
+
+    void setControlState(ControlState control);
 
     bool isWifiEnabled() { return wifi_enabled_; }
 
@@ -110,18 +144,25 @@ private:
     QDBusConnection connection_;    ///< Connection to system manager.
     scoped_ptr<WpaConnection> proxy_;
 
-    QTimer scan_timer_;
-    int scan_count_;     ///< Scan retry.
-    int connect_retry_;
+    QTimer scan_timer_;         ///< Scan timer
+    int scan_retry_;            ///< Scan retry.
 
-    WpaConnection::ConnectionState internal_state_;
+    QTimer connection_timer_;   ///< Authentication timer.
+    int connect_retry_;         ///< retry.
+
+    WpaConnection::ConnectionState wpa_state_;  ///< report wpa supplicant state.
+    ControlState control_state_;
+    
     bool auto_connect_;
     bool auto_reconnect_;
     bool wifi_enabled_;
-    bool disable_idle_;
 
     WifiProfiles scan_results_;     ///< Also serves as connect list.
     scoped_ptr<WifiProfiles> records_;  ///< All profiles that stored in database.
+
+    bool suspend_period_;
+    bool disable_idle_called_;
+
 };
 
 #endif      // WAP_CONNECTION_MANAGER_H_

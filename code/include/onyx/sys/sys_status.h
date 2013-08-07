@@ -113,6 +113,9 @@ class SysStatus : public QObject
     QString currentConnection();
     QString connectionType();
 
+    void queryWifiStatus();
+    void wifiNetworkSignal(const int signal, const int total, const int network);
+
     void setSystemBusy(bool busy = true, bool show_indicator = true);
     inline bool isSystemBusy() { return system_busy_; }
 
@@ -215,6 +218,7 @@ class SysStatus : public QObject
     void configKeyboard();
 
     void userBehaviorSignal(const QByteArray &data);
+    void reportWifiNetwork(const int signal, const int total, const int network);
 
   private slots:
     void onBatteryChanged(int, int);
@@ -262,6 +266,7 @@ class SysStatus : public QObject
     void onConfigKeyboard();
 
     void onUserBehaviorSignal(const QByteArray &data);
+    void onReportWifiNetwork(const int signal, const int total, const int network);
 
   private:
     SysStatus();
