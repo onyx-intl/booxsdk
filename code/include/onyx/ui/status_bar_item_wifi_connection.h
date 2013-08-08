@@ -33,6 +33,7 @@ private:
     void paintBars(QPainter & p, const QRect & rc, QBrush brush, int bars);
 
     QString networkType(int);
+    QString imagePath();
 
 private:
     int strength_;
