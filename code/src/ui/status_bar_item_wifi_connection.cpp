@@ -2,6 +2,7 @@
 #include "onyx/data/network_types.h"
 #include "onyx/sys/sys.h"
 #include "onyx/ui/ui_utils.h"
+#include "onyx/sys/platform.h"
 
 namespace ui
 {
@@ -40,7 +41,7 @@ bool StatusBarItemWifiConnection::setConnectionInfomation(const int strength,
 {
     bool dirty = false;
 
-    setFixedWidth(30 + SPACING);
+    setFixedWidth(QImage(imagePath().append("wifi_0.png")).width() + SPACING);
 
     if (strength_ != strength || total_ != total)
     {
@@ -56,13 +57,23 @@ bool StatusBarItemWifiConnection::setConnectionInfomation(const int strength,
     return dirty;
 }
 
+QString StatusBarItemWifiConnection::imagePath()
+{
+    QString image_path(":/images/");
+    if(ui::isHD() && sys::isIRTouch())
+    {
+        image_path = "/usr/share/ui/status_bar/images/";
+    }
+    return image_path;
+}
 
 void StatusBarItemWifiConnection::paintEvent(QPaintEvent *pe)
 {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
-    QString image_path(":/images/wifi_%1.png");
+    QString image_path = imagePath().append("wifi_%1.png");
+
     int level = strength_;
     if (strength_ < 0)
     {

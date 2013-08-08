@@ -1002,8 +1002,7 @@ StatusBarItem *StatusBar::item(const StatusBarItemType type, bool create)
         addWidget(label);
         addWidget(ptr.get());
     }
-    else if (type == BATTERY &&
-             sys::isIRTouch() && isHD())
+    else if (type == BATTERY)
     {
         OnyxLabel *label = new OnyxLabel(this);
         label->setFixedWidth(10);
