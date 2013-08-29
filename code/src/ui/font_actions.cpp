@@ -192,7 +192,7 @@ void TextSizeActions::generateActions(vector<qreal> & size,
         QString text = QString("%1%").arg(*iter * 100);
         if(CUSTOM_TEXT_SIZE == *iter)
         {
-            text = tr("Input Custom");
+            text = QCoreApplication::tr("Input Custom");
         }
 
         // Add to category automatically.
