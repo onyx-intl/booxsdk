@@ -810,7 +810,8 @@ PasswordDialogWithMsgBox * StatusBar::usbConnectionDialog(bool create)
 {
     if (!usb_connection_dialog_ && create)
     {
-        usb_connection_dialog_.reset(new PasswordDialogWithMsgBox(0));
+        usb_connection_dialog_.reset(new PasswordDialogWithMsgBox(0, ODatas(),
+        		tr("USB connection detected. Please input password to connect to PC:")));
     }
     return usb_connection_dialog_.get();
 }

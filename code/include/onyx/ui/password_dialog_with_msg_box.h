@@ -11,6 +11,11 @@
 namespace ui
 {
 
+typedef enum{
+	USB_CONNECTION_TYPE,
+	WIFI_CONNECTION_TYPE,
+} PasswdUseType;
+
 class PasswordDialogWithMsgBox: public QDialog
 {
     Q_OBJECT
@@ -22,7 +27,8 @@ public:
     ~PasswordDialogWithMsgBox();
 
 public:
-    bool popup(const QString &password);
+    int popup(const QString &password, PasswdUseType type = USB_CONNECTION_TYPE);
+    QString getPasswd();
 
 protected Q_SLOTS:
     void onItemActivated(CatalogView *catalog, ContentView *item,
@@ -66,6 +72,7 @@ private:
     ODatas edit_list_;
 
     OnyxLineEdit passwd_edit_;
+    PasswdUseType type_;
 };
 
 }   // namespace ui

@@ -37,13 +37,14 @@ PasswordDialogWithMsgBox::~PasswordDialogWithMsgBox()
     clearDatas(show_plain_text_datas_);
 }
 
-bool PasswordDialogWithMsgBox::popup(const QString &password)
+int PasswordDialogWithMsgBox::popup(const QString &password, PasswdUseType type)
 {
     if (isHidden())
     {
         show();
     }
 
+    type_ = type;
     if(ui::isHD())
     {
         QWidget * widget = safeParentWidget(parentWidget());
@@ -73,7 +74,7 @@ void PasswordDialogWithMsgBox::createLayout()
     QVBoxLayout *message_layout = new QVBoxLayout();
 
     message_layout->setContentsMargins(33, 50, 35, 50);
-    OnyxLabel *info_label = new OnyxLabel(tr("USB connection detected. Please input password to connect to PC:"), this);
+    OnyxLabel *info_label = new OnyxLabel(title_, this);
     info_label->setWordWrap(true);
     passwd_edit_.setEchoMode(QLineEdit::Password);
     passwd_edit_.setFixedSize(width()*2/3, 40);
@@ -115,7 +116,7 @@ void PasswordDialogWithMsgBox::createLayout()
 void PasswordDialogWithMsgBox::onCancelButtonClicked()
 {
     hide();
-    QDialog::done(QDialog::Accepted);
+    QDialog::done(QDialog::Rejected);
 }
 
 void PasswordDialogWithMsgBox::createShowPlainText()
@@ -227,8 +228,17 @@ void PasswordDialogWithMsgBox::onOKButtonClicked()
 {
     if(validateLength(passwd_edit_.text()))
     {
-        SysStatus::instance().notifyAboutPasswd(passwd_edit_.text());
+		if(type_ == USB_CONNECTION_TYPE)
+		{
+			SysStatus::instance().notifyAboutPasswd(passwd_edit_.text());
+		}
+		else if(type_ == WIFI_CONNECTION_TYPE)
+	    {
+	    	hide();
+			QDialog::done(QDialog::Accepted);
+	    }
     }
+
 }
 
 void PasswordDialogWithMsgBox::onItemActivated(CatalogView *catalog,
@@ -259,6 +269,11 @@ void PasswordDialogWithMsgBox::onItemActivated(CatalogView *catalog,
         update();
         onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GC);
     }
+}
+
+QString PasswordDialogWithMsgBox::getPasswd()
+{
+	return passwd_edit_.text();
 }
 
 }   // namespace ui
