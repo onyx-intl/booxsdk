@@ -7,6 +7,8 @@
 namespace ui
 {
 
+static const QString TAG_INDEX = "lang_index";
+
 /// Always use UTF-8.
 struct LocaleItem
 {
@@ -15,6 +17,7 @@ struct LocaleItem
 };
 
 // Define all supported languages.
+static const char* SCOPE = "LocalePage";
 static const LocaleItem LANGUAGES[] =
 {
     {QT_TRANSLATE_NOOP("LocalePage", "English"),  QLocale(QLocale::English)},
@@ -87,7 +90,8 @@ void OnyxKeyboardLanguageDialog::createLanguageGroup()
             }
         }
         ODataPtr dd(new OData);
-        dd->insert(TAG_TITLE, LANGUAGES[i].text);
+        dd->insert(TAG_TITLE, qApp->translate(SCOPE, LANGUAGES[i].text));
+        dd->insert(TAG_INDEX, i);
         if (LANGUAGES[i].locale.name() == language_.name())
         {
             dd->insert(TAG_CHECKED, true);
@@ -100,25 +104,23 @@ void OnyxKeyboardLanguageDialog::createLanguageGroup()
     language_group_.setSearchPolicy(CatalogView::AutoVerRecycle);
 }
 
-QLocale OnyxKeyboardLanguageDialog::getLocale(const QString language_text)
+QLocale OnyxKeyboardLanguageDialog::getLocale(const OData *data)
 {
-    QLocale locale(QLocale::English);
-    for (int i=0; i<LANGUAGE_COUNT; i++)
-    {
-        if (language_text == LANGUAGES[i].text)
-        {
-            locale = LANGUAGES[i].locale;
-            break;
-        }
-    }
-    return locale;
+    int index = data->value(TAG_INDEX).toInt();
+    QLocale selected_locale = LANGUAGES[index].locale;
+    return selected_locale;
 }
 
 void OnyxKeyboardLanguageDialog::onItemActivated(CatalogView *catalog,
         ContentView *item, int user_data)
 {
+    if (!item || !item->data())
+    {
+        return;
+    }
+
     OData * item_data = item->data();
-    language_ = getLocale(item_data->value(TAG_TITLE).toString());
+    language_ = getLocale(item_data);
     accept();
 }
 

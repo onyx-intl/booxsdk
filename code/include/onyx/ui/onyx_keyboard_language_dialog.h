@@ -25,7 +25,7 @@ private:
     void createLayout();
     void createLanguageGroup();
 
-    QLocale getLocale(const QString language_text);
+    QLocale getLocale(const OData *data);
 
     bool enableGeorgian();
 
