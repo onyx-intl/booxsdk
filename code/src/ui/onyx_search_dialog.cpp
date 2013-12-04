@@ -15,7 +15,7 @@ namespace ui
 {
 
 
-OnyxSearchDialog::OnyxSearchDialog(QWidget *parent, OnyxSearchContext & ctx)
+OnyxSearchDialog::OnyxSearchDialog(QWidget *parent, OnyxSearchContext & ctx, bool adjust_postion)
     : OnyxDialog(parent)
     , big_layout_(&content_widget_)
     , line_edit_layout_(0)
@@ -25,6 +25,7 @@ OnyxSearchDialog::OnyxSearchDialog(QWidget *parent, OnyxSearchContext & ctx)
     , next_prev_(0, this)
     , ctx_(ctx)
     , mode_(MODE_FULL)
+    , adjust_postion_(adjust_postion)
 {
     createLayout();
     connectWithChildren();
@@ -56,7 +57,7 @@ void OnyxSearchDialog::adjustSizeAndPosition()
         setFixedSize(parent_rect.width(), defaultItemHeight() * 2 + 2 *SPACING);
     }
     y = parent->height() - height();
-    if (sys::isIRTouch())
+    if (sys::isIRTouch() && adjust_postion_)
     {
         y -= ui::statusBarHeight();
     }

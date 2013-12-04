@@ -71,7 +71,7 @@ void OnyxNotesDialog::createSubMenu()
     sub_menu_.setFixedGrid(1, 2);
     sub_menu_.setMargin(OnyxKeyboard::CATALOG_MARGIN);
     sub_menu_.setData(sub_menu_datas_);
-    sub_menu_.setFixedWidth(defaultItemHeight()*4);
+    sub_menu_.setFixedWidth(defaultItemHeight()*6);
     sub_menu_.setFixedHeight(defaultItemHeight()+4*SPACING);
 }
 

@@ -51,7 +51,10 @@ static QString getCustomizedDownloadPath()
     {
         return QString();
     }
-    context = context.arg(QCoreApplication::tr("Downloaded"));
+    QString downloaded_translated = QCoreApplication::tr("Downloaded");
+    if (!downloaded_translated.isEmpty() && downloaded_translated.contains("%1")) {
+        context = context.arg(downloaded_translated);
+    }
     qDebug() << "Download path for drm: " << context;
     QDir dir(context);
     if (!dir.exists())

@@ -42,6 +42,7 @@ private:
     void updatePath(QPainterPath & path, const QRect & rect);
 
     void drawMessage(QPainter &painter);
+    void initFont();
 
 private:
     int current_;
@@ -53,6 +54,8 @@ private:
 
     QPainterPath bk_path_;
     QPainterPath fg_path_;
+
+    QFont font_;
 };
 
 };  // namespace ui

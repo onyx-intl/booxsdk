@@ -190,6 +190,10 @@ void TextSizeActions::generateActions(vector<qreal> & size,
     {
         // The text.
         QString text = QString("%1%").arg(*iter * 100);
+        if(CUSTOM_TEXT_SIZE == *iter)
+        {
+            text = QCoreApplication::tr("Input Custom");
+        }
 
         // Add to category automatically.
         shared_ptr<QAction> act(new QAction(text, exclusiveGroup()));

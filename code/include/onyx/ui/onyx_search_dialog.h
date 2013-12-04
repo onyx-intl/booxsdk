@@ -18,7 +18,7 @@ class OnyxSearchDialog: public OnyxDialog
     Q_OBJECT
 
 public:
-    OnyxSearchDialog(QWidget *parent, OnyxSearchContext & ctx);
+    OnyxSearchDialog(QWidget *parent, OnyxSearchContext & ctx, bool adjust_postion = false);
     ~OnyxSearchDialog();
 
 public:
@@ -28,6 +28,7 @@ public:
 
 public Q_SLOTS:
     void noMoreMatches();
+    void adjustSizeAndPosition();
 
 Q_SIGNALS:
     /// The search signal is emitted when user clicked search button,
@@ -48,8 +49,6 @@ private Q_SLOTS:
     void onSearchNextClicked();
     void onSearchPrevClicked();
     void onCloseClicked();
-
-    void adjustSizeAndPosition();
 
 private:
     void createLayout();
@@ -91,6 +90,7 @@ private:
     OnyxSearchContext & ctx_;
 
     int mode_;
+    bool adjust_postion_;
 };
 
 }   // namespace ui

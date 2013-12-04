@@ -11,8 +11,10 @@ namespace ui
 
 static const int ITEM_HEIGHT = 50;
 static const int MY_WIDTH = 20;
-static const int MY_HEIGHT = 240;
+static const int MY_HEIGHT = 360;
 static const int TOTAL_RECT = 50;
+static const QString WAKE_UP_TAG = "glow_light_wake_up_tag";
+static const QString START_UP_TAG = "glow_light_start_up_tag";
 
 MoonLightProgressBar::MoonLightProgressBar(QWidget *parent)
     : QWidget(parent)
@@ -162,6 +164,8 @@ GlowLightControlDialog::GlowLightControlDialog(QWidget *parent)
 , ok_view_(0, this)
 , add_light_view_(0, this)
 , sub_light_view_(0, this)
+, wake_up_option_view_(0, this)
+, start_up_option_view_(0, this)
 {
     setModal(true);
     createLayout();
@@ -197,6 +201,8 @@ void GlowLightControlDialog::createLayout()
     createOKView();
     createSubLightView();
     createAddLightView();
+    creatWakeUpView();
+    creatStartUpView();
 
     h_layout_.addWidget(&switch_view_);
     layout_.addLayout(&h_layout_);
@@ -219,6 +225,9 @@ void GlowLightControlDialog::createLayout()
 
     layout_.addLayout(&slider_h_layout_);
     layout_.addSpacing(10);
+
+    layout_.addWidget(&wake_up_option_view_);
+    layout_.addWidget(&start_up_option_view_);
 
     ok_h_layout_.setContentsMargins(450, 0, 0, 0);
     ok_h_layout_.addStretch(0);
@@ -310,6 +319,52 @@ void GlowLightControlDialog::createSubLightView()
                      &slider_, SLOT(subValue()));
 }
 
+void GlowLightControlDialog::creatStartUpView()
+{
+    start_up_option_view_.setSubItemType(ui::CheckBoxView::type());
+    start_up_option_view_.setPreferItemSize(QSize(360, ITEM_HEIGHT));
+
+    sys::SystemConfig conf;
+    bool checked = conf.miscValue(START_UP_TAG).toInt() > 0;
+
+    ODatas d;
+
+    OData * item = new OData;
+    item->insert(TAG_TITLE, tr("turn on MOON Light automatically at power on"));
+    item->insert(TAG_CHECKED, checked);
+    d.push_back(item);
+
+    start_up_option_view_.setMinimumHeight( ITEM_HEIGHT );
+    start_up_option_view_.setMinimumWidth(360);
+    start_up_option_view_.setData(d, true);
+
+    QObject::connect(&start_up_option_view_, SIGNAL(itemActivated(CatalogView *, ContentView *, int)),
+                     this, SLOT(onSwitchClicked(CatalogView*, ContentView*, int)));
+}
+
+
+void GlowLightControlDialog::creatWakeUpView()
+{
+    wake_up_option_view_.setSubItemType(ui::CheckBoxView::type());
+    wake_up_option_view_.setPreferItemSize(QSize(360, ITEM_HEIGHT));
+
+    sys::SystemConfig conf;
+    bool checked = conf.miscValue(WAKE_UP_TAG).toInt() > 0;
+
+    ODatas d;
+
+    OData * item = new OData;
+    item->insert(TAG_TITLE, tr("turn on MOON Light automatically after wake up"));
+    item->insert(TAG_CHECKED, checked);
+    d.push_back(item);
+
+    wake_up_option_view_.setMinimumHeight( ITEM_HEIGHT );
+    wake_up_option_view_.setMinimumWidth(360);
+    wake_up_option_view_.setData(d, true);
+
+    QObject::connect(&wake_up_option_view_, SIGNAL(itemActivated(CatalogView *, ContentView *, int)),
+                     this, SLOT(onSwitchClicked(CatalogView*, ContentView*, int)));
+}
 
 void GlowLightControlDialog::onSwitchClicked(CatalogView *catalog, ContentView *item, int user_data)
 {
@@ -321,7 +376,19 @@ void GlowLightControlDialog::onSwitchClicked(CatalogView *catalog, ContentView *
     bool checked = item->data()->value(TAG_CHECKED).toBool();
     item->data()->insert(TAG_CHECKED, !checked);
 
-    sys::SysStatus::instance().turnGlowLightOn(!checked, true);
+    sys::SystemConfig conf;
+    if(catalog == &switch_view_)
+    {
+        sys::SysStatus::instance().turnGlowLightOn(!checked, true);
+    }
+    else if(catalog == &start_up_option_view_)
+    {
+        conf.setMiscValue(START_UP_TAG, QString::number(!checked));
+    }
+    else if(catalog == &wake_up_option_view_)
+    {
+        conf.setMiscValue(WAKE_UP_TAG, QString::number(!checked));
+    }
 
     update();
     onyx::screen::watcher().enqueue(catalog, onyx::screen::ScreenProxy::GU);

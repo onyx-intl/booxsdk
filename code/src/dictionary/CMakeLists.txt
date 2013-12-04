@@ -32,7 +32,7 @@ QT4_ADD_RESOURCES(dictionary_ui_res ${resource_srcs})
 
 
 ADD_LIBRARY(dictionary ${SRCS} ${MOC_SRCS} ${dictionary_ui_res})
-TARGET_LINK_LIBRARIES(dictionary onyx_ui ${ADD_LIB})
+TARGET_LINK_LIBRARIES(dictionary onyx_ui ${ADD_LIB} z)
 
 ########### Unit Tests #####################
 INCLUDE_DIRECTORIES(.)
@@ -40,6 +40,6 @@ ADD_EXECUTABLE(dictionary_test unittests/libdict_test.cpp ${SRCS} ${MOC_SRCS})
 TARGET_LINK_LIBRARIES(dictionary_test onyx_sys onyx_screen
         onyx_ui dictionary tts sound
         ${QT_LIBRARIES}
-        ${ADD_LIB})
+        ${ADD_LIB} z)
 SET_TARGET_PROPERTIES(dictionary_test PROPERTIES  RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_PATH})
 

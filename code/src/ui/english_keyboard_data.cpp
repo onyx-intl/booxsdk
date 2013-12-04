@@ -62,7 +62,7 @@ void EnglishKeyboardData::initMiddleKeyCode()
 
 void EnglishKeyboardData::initRightKeyCode()
 {
-    const QChar chs[] = {'u', 'i', 'o', 'j', 'k', 'l', 'm', 'p', '.'};
+    const QChar chs[] = {'u', 'i', 'o', 'j', 'k', 'l', 'm', 'p', '@'};
     for (int i=0; i<9; i++)
     {
         ODataPtr dd(createData(QString(chs[i])));
@@ -82,7 +82,7 @@ void EnglishKeyboardData::initBottomKeyCode()
     bottom_codes_.push_back(ODataPtr(createSpaceData()));
     bottom_codes_.push_back(ODataPtr(createBackspaceData()));
 
-    const QChar chs_next[] = {'\'', ';'};
+    const QChar chs_next[] = {'\'', '.'};
     for (int i=0; i<2; i++)
     {
         ODataPtr dd(createData(QString(chs_next[i])));
@@ -134,7 +134,7 @@ void EnglishKeyboardData::initRightKeyShiftCode()
 
 void EnglishKeyboardData::initBottomKeyShiftCode()
 {
-    const QChar chs[] = {'\\', '/', '[', ']', '='};
+    const QChar chs[] = {'\\', '/', '[', ']', ';'};
     for (int i=0; i<5; i++)
     {
         ODataPtr dd(createData(QString(chs[i])));
@@ -186,7 +186,7 @@ void EnglishKeyboardData::initMiddleKeySymbolCode()
 void EnglishKeyboardData::initRightKeySymbolCode()
 {
     const QChar chs[] = {QChar(0x00B1), QChar(0x00B5), QChar(0x00AC),
-                         QChar(0x002D), QChar(0x00AF), QChar(0x00B7),
+                         QChar(0x00AF), QChar(0x003D), QChar(0x00B7),
                          QChar(0x00AB), QChar(0x00BB), QChar(0x00AE), };
     for (int i = 0; i < 9; i++)
     {
