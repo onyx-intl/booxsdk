@@ -23,6 +23,7 @@ public:
 public:
     int popup(const QString & text);
     QString inputText();
+    void clearClicked();
 
 protected Q_SLOTS:
     void onItemActivated(CatalogView *catalog, ContentView *item,
@@ -36,9 +37,6 @@ private:
     void createNotesEdit();
     void createSubMenu();
     void connectWithChildren();
-
-    void clearClicked();
-
     bool eventFilter(QObject *obj, QEvent *event);
     // handling key press event
     void keyPressEvent(QKeyEvent *event);
