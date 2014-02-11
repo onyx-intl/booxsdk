@@ -11,11 +11,6 @@
 namespace ui
 {
 
-typedef enum{
-	USB_CONNECTION_TYPE,
-	WIFI_CONNECTION_TYPE,
-} PasswdUseType;
-
 class PasswordDialogWithMsgBox: public QDialog
 {
     Q_OBJECT
