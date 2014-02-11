@@ -258,6 +258,13 @@ enum SpeakStyle
     SPEAK_STYLE_VIVID,
 };
 
+enum PasswdUseType
+{
+    USB_CONNECTION_TYPE,
+    WIFI_CONNECTION_TYPE,
+    PASSWORD_GENERIC_TYPE
+};
+
 }  // namespace ui
 
 #endif  // ONYX_UI_GLOBAL_H__

@@ -101,10 +101,6 @@ void PasswordDialogWithMsgBox::createLayout()
     big_layout_.setContentsMargins(2, 2, 2, 2);
     big_layout_.setSpacing(0);
 
-    QWidget *pwidget = safeParentWidget(parentWidget());
-    int sub_menu_width = defaultItemHeight()*5;
-    int line_edit_width = pwidget->width()-LABEL_WIDTH-sub_menu_width-5;
-
     createShowPlainText();
 
     big_layout_.addWidget(&show_plain_text_);
@@ -228,17 +224,16 @@ void PasswordDialogWithMsgBox::onOKButtonClicked()
 {
     if(validateLength(passwd_edit_.text()))
     {
-		if(type_ == USB_CONNECTION_TYPE)
-		{
-			SysStatus::instance().notifyAboutPasswd(passwd_edit_.text());
-		}
-		else if(type_ == WIFI_CONNECTION_TYPE)
-	    {
-	    	hide();
-			QDialog::done(QDialog::Accepted);
-	    }
+        if(type_ == USB_CONNECTION_TYPE)
+        {
+            SysStatus::instance().notifyAboutPasswd(passwd_edit_.text());
+        }
+        else if(type_ == WIFI_CONNECTION_TYPE || type_ == PASSWORD_GENERIC_TYPE)
+        {
+            hide();
+            QDialog::done(QDialog::Accepted);
+        }
     }
-
 }
 
 void PasswordDialogWithMsgBox::onItemActivated(CatalogView *catalog,
