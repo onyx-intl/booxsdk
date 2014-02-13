@@ -258,7 +258,7 @@ enum SpeakStyle
     SPEAK_STYLE_VIVID,
 };
 
-enum PasswdUseType
+enum PasswordUseType
 {
     USB_CONNECTION_TYPE,
     WIFI_CONNECTION_TYPE,

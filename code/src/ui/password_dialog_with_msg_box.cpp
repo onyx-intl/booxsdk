@@ -37,7 +37,7 @@ PasswordDialogWithMsgBox::~PasswordDialogWithMsgBox()
     clearDatas(show_plain_text_datas_);
 }
 
-int PasswordDialogWithMsgBox::popup(const QString &password, PasswdUseType type)
+int PasswordDialogWithMsgBox::popup(const QString &password, PasswordUseType type)
 {
     if (isHidden())
     {
