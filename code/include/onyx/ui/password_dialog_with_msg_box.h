@@ -22,8 +22,9 @@ public:
     ~PasswordDialogWithMsgBox();
 
 public:
-    int popup(const QString &password, PasswdUseType type = USB_CONNECTION_TYPE);
+    int popup(const QString &password, PasswordUseType type = USB_CONNECTION_TYPE);
     QString getPasswd();
+    void clearState();
 
 protected Q_SLOTS:
     void onItemActivated(CatalogView *catalog, ContentView *item,
@@ -67,7 +68,7 @@ private:
     ODatas edit_list_;
 
     OnyxLineEdit passwd_edit_;
-    PasswdUseType type_;
+    PasswordUseType type_;
 };
 
 }   // namespace ui
