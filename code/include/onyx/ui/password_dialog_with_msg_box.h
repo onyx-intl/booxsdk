@@ -24,6 +24,7 @@ public:
 public:
     int popup(const QString &password, PasswordUseType type = USB_CONNECTION_TYPE);
     QString getPasswd();
+    void clearState();
 
 protected Q_SLOTS:
     void onItemActivated(CatalogView *catalog, ContentView *item,

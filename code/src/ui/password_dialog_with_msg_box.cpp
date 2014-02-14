@@ -37,6 +37,19 @@ PasswordDialogWithMsgBox::~PasswordDialogWithMsgBox()
     clearDatas(show_plain_text_datas_);
 }
 
+void PasswordDialogWithMsgBox::clearState()
+{
+    passwd_edit_.clear();
+    passwd_edit_.setEchoMode(QLineEdit::Password);
+
+    show_plain_text_datas_.clear();
+    ODataPtr dd(new OData);
+    dd->insert(TAG_TITLE, tr("Show Plain Text"));
+    dd->insert(TAG_CHECKED, false);
+    show_plain_text_datas_.push_back(dd);
+    show_plain_text_.setData(show_plain_text_datas_, true);
+}
+
 int PasswordDialogWithMsgBox::popup(const QString &password, PasswordUseType type)
 {
     if (isHidden())
